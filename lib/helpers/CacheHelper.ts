@@ -12,26 +12,17 @@ interface CacheStore {
 }
 
 const logger = debug('graft:helpers:Cache');
+const tracer = debug('graft:trace:helpers:Cache');
 export class CacheHelper {
 	private static cache: CacheStore = {};
 
 	public static Get<T>(key: string, fetcher: CacheFetcher<T>): T {
 		if (!this.cache[key]) {
-			logger('storing `%s` to cache', key);
 			this.cache[key] = fetcher();
-		}
-
-		logger('getting `%s` from cache', key);
-		return this.cache[key];
-	}
-
-	public static async GetAsync<T>(key: string, fetcherAsync: CacheFetcherAsync<T>): Promise<T> {
-		if (!this.cache[key]) {
 			logger('storing `%s` to cache', key);
-			this.cache[key] = await fetcherAsync();
 		}
 
-		logger('getting `%s` from cache', key);
+		tracer('getting `%s` from cache', key);
 		return this.cache[key];
 	}
 }

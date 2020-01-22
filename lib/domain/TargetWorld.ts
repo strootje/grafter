@@ -1,11 +1,11 @@
+import { resolve } from 'path';
 import { World } from './minecraft/World';
-import { TargetFolder } from './TargetFolder';
+import { Targetable } from './Targetable';
 
-export class TargetWorld extends TargetFolder {
+export class TargetWorld extends Targetable {
 	constructor(
-		world: World,
-		folder: string
+		world: World
 	) {
-		super(world.Profile, folder);
+		super(world.Profile, resolve(world.Profile.Folder, 'resourcepacks'), resolve(world.Folder, 'datapacks'));
 	}
 }
