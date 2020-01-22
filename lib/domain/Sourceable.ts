@@ -5,7 +5,7 @@ export abstract class Sourceable {
 	private readonly targets: Writeable[];
 
 	constructor(
-		private readonly pack: Packable
+		protected readonly pack: Packable
 	) {
 		this.targets = [];
 	}
@@ -14,6 +14,7 @@ export abstract class Sourceable {
 		this.targets.push(target);
 	}
 
-	public HandleFilesAsync(): Promise<void> {
+	public async HandleFilesAsync(): Promise<void> {
+		console.log(this.pack);
 	}
 }
