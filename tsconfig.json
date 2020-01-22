@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es6",
+
+		"declaration": true,
+		"baseUrl": "./",
+		"outDir": "./dist",
+
+		"noImplicitAny": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strictNullChecks": true,
+		"allowUnreachableCode": false,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"sourceMap": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+	},
+	"include": [
+		"**/*.ts",
+		"**/*.d.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
