@@ -1,4 +1,4 @@
-import { Manifest } from './pack/Manifest';
+// import { Manifest } from './pack/Manifest';
 import { Packable } from './Packable';
 import { Targetable } from './Targetable';
 
@@ -16,5 +16,5 @@ export abstract class Writeable {
 	) {
 	}
 
-	public abstract CreateAsync(manifest: Manifest, predicate: WritableBuilderPredicate): Promise<void>
+	// public abstract CreateAsync(manifest: Manifest, predicate: WritableBuilderPredicate): Promise<void>
 }
