@@ -1,7 +1,6 @@
 import { debug } from 'debug';
 
 export type CacheFetcher<T> = () => T;
-export type CacheFetcherAsync<T> = () => Promise<T>;
 
 export interface CacheOpts {
 	expireIn?: number;
@@ -19,6 +18,7 @@ export class CacheHelper {
 	public static Get<T>(key: string, fetcher: CacheFetcher<T>): T {
 		if (!this.cache[key]) {
 			this.cache[key] = fetcher();
+
 			logger('storing `%s` to cache', key);
 		}
 

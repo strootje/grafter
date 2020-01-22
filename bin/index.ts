@@ -14,7 +14,7 @@ const setup = (builder: Yargs.Argv) => builder
 
 Yargs.command('build [target] [source]', 'Build the pack', setup, ArgsHelper.Coerce(async args => {
 	const graft = new Graft({
-		sourceFolder: args.source,
+		rootFolder: args.source,
 		target: args.target
 	});
 
@@ -23,7 +23,7 @@ Yargs.command('build [target] [source]', 'Build the pack', setup, ArgsHelper.Coe
 
 Yargs.command('serve [target] [source]', 'Builds the pack and watch for changes', setup, ArgsHelper.Coerce(async args => {
 	const graft = new Graft({
-		sourceFolder: args.source,
+		rootFolder: args.source,
 		target: args.target
 	});
 
@@ -32,7 +32,7 @@ Yargs.command('serve [target] [source]', 'Builds the pack and watch for changes'
 
 Yargs.command('pack [target] [source]', 'Builds the pack and creates an archive', setup, ArgsHelper.Coerce(async args => {
 	const graft = new Graft({
-		sourceFolder: args.source,
+		rootFolder: args.source,
 		target: args.target
 	});
 
