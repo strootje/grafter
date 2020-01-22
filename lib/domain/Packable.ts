@@ -24,4 +24,8 @@ export abstract class Packable {
 	public get Folder(): string {
 		return this.folder;
 	}
+
+	public get Manifest(): Manifest {
+		return this.manifest;
+	}
 }

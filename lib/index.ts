@@ -5,8 +5,8 @@ import { Packable } from './domain/Packable';
 import { SourceReader } from './domain/SourceReader';
 import { SourceWatcher } from './domain/SourceWatcher';
 import { Targetable } from './domain/Targetable';
-import { WriteArchive } from './domain/WriteArchive';
-import { WriteFile } from './domain/WriteFile';
+import { WriteToArchive } from './domain/WriteToArchive';
+import { WriteToFolder } from './domain/WriteToFolder';
 import { PackFactory } from './factories/PackFactory';
 import { CacheHelper } from './helpers/CacheHelper';
 
@@ -30,47 +30,45 @@ export class Graft {
 	public async BuildAsync(): Promise<void> {
 		logger('building packs');
 
-		return this.HandlePackAsync(async pack => {
-			const source = new SourceReader(pack);
-			const writer = new WriteFile(this.target, pack);
-			source.Pipe(writer);
+		return this.HandlePackAsync(pack => {
+			const writer = new WriteToFolder(this.target, pack);
+			const source = new SourceReader(pack, writer);
 
-			await source.HandleFilesAsync();
+			return source.ProcessFilesAsync();
 		});
 	}
 
 	public ServeAsync(): Promise<void> {
 		logger('serving packs');
 
-		return this.HandlePackAsync(async pack => {
-			const source = new SourceWatcher(pack);
-			const writer = new WriteFile(this.target, pack);
-			source.Pipe(writer);
+		return this.HandlePackAsync(pack => {
+			const writer = new WriteToFolder(this.target, pack);
+			const source = new SourceWatcher(pack, writer);
 
-			await source.HandleFilesAsync();
+			return source.ProcessFilesAsync();
 		});
 	}
 
 	public PackAsync(): Promise<void> {
 		logger('packing packs');
 
-		return this.HandlePackAsync(async pack => {
-			const source = new SourceReader(pack);
-			const writer = new WriteArchive(this.target, pack);
-			source.Pipe(writer);
+		return this.HandlePackAsync(pack => {
+			const writer = new WriteToArchive(this.target, pack);
+			const source = new SourceReader(pack, writer);
 
-			await source.HandleFilesAsync();
+			return source.ProcessFilesAsync();
 		});
 	}
 
-	private async HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
+	private HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
 		const tasks: Promise<void>[] = [];
 		for (const key in this.Packs) {
 			const pack = this.Packs[key];
 			tasks.push(predicate(pack));
 		}
 
-		await Promise.all(tasks);
+		return Promise.all(tasks)
+			.then(() => logger('-- finished --'));
 	}
 
 	private get Packs(): Packable[] {
@@ -81,7 +79,7 @@ export class Graft {
 			const packFolders = FastGlob(['**/assets', '**/data'], {
 				cwd: folder,
 				onlyDirectories: true,
-				ignore: ['**/dist', '**/node_modules']
+				ignore: ['**/dist', '**/graft', '**/node_modules']
 			});
 
 			const packs: Packable[] = [];
@@ -90,7 +88,7 @@ export class Graft {
 				const packFolderPath = resolve(this.rootFolder, packFolder);
 
 				const pack = PackFactory.Create(packFolderPath);
-				logger('searching for packs in `%s` - found %s', folder, pack.Name);
+				logger('searching for packs in `%s` - found', packFolderPath);
 				packs.push(pack);
 			}
 

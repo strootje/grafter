@@ -1,20 +1,39 @@
+import { debug } from 'debug';
 import { Packable } from './Packable';
-import { Writeable } from './Writeable';
+import { Watchable } from './Watchable';
+import { WriteableBuilder, WriteableCreator } from './Writeable';
 
+const logger = debug('graft:domain:Sourceable');
 export abstract class Sourceable {
-	private readonly targets: Writeable[];
-
 	constructor(
-		protected readonly pack: Packable
+		protected readonly pack: Packable,
+		protected readonly target: WriteableCreator
 	) {
-		this.targets = [];
 	}
 
-	public Pipe(target: Writeable): void {
-		this.targets.push(target);
+	public ProcessFilesAsync(): Promise<void> {
+		return this.target.CreateAsync(builder => {
+			return this.ProcessFilesAsyncInternal(builder);
+		});
 	}
 
-	public async HandleFilesAsync(): Promise<void> {
-		console.log(this.pack);
+	protected abstract ProcessFilesAsyncInternal(builder: WriteableBuilder): Promise<void>;
+
+	protected CreateAsyncFileEventAddedEventHandler(_builder: WriteableBuilder) {
+		return async (file: Watchable): Promise<void> => {
+			logger('added', file);
+		};
+	}
+
+	protected CreateAsyncFileEventChangedEventHandler(_builder: WriteableBuilder) {
+		return async (file: Watchable): Promise<void> => {
+			logger('changed', file);
+		};
+	}
+
+	protected CreateAsyncFileEventRemovedEventHandler(_builder: WriteableBuilder) {
+		return async (file: Watchable): Promise<void> => {
+			logger('removed', file);
+		};
 	}
 }

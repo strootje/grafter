@@ -1,19 +1,25 @@
-import { Sourceable } from './Sourceable';
+// import { debug } from 'debug';
 import { stream as FastGlob } from 'fast-glob';
 import { Subject } from 'rxjs';
+import { FileFactory } from '../factories/FileFactory';
+import { Sourceable } from './Sourceable';
+import { Watchable } from './Watchable';
+import { WriteableBuilder } from './Writeable';
 
+// const logger = debug('graft:domain:SourceReader');
 export class SourceReader extends Sourceable {
-	public async HandleFilesAsync(): Promise<void> {
+	public async ProcessFilesAsyncInternal(builder: WriteableBuilder): Promise<void> {
 		const files = FastGlob('**/*', {
 			cwd: this.pack.Folder
 		});
 
-		const subject = new Subject<string>();
-		const sub = subject.subscribe(console.log);
+		const subject = new Subject<Watchable>();
+		const sub = subject.subscribe(this.CreateAsyncFileEventAddedEventHandler(builder));
 
 		for await (const filepath of files) {
 			const filepathAsString = filepath as string;
-			subject.next(filepathAsString);
+			const file = FileFactory.Create(filepathAsString);
+			subject.next(file);
 		}
 
 		subject.complete();
