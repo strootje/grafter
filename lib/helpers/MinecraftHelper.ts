@@ -23,8 +23,7 @@ export class MinecraftHelper {
 			const profiles: Profile[] = [];
 			const profilesJson = this.ProfilesJson.profiles;
 
-			for (const key in profilesJson) {
-				const profile = profilesJson[key];
+			Object.values(profilesJson).forEach(profile => {
 				logger('building profile `%s:%s`', profile.type, profile.name);
 
 				try {
@@ -43,8 +42,8 @@ export class MinecraftHelper {
 					// invalid profile, skip
 					logger('building profile `%s:%s` - skip', profile.type, profile.name);
 				}
-			}
-
+			});
+			
 			return profiles;
 		});
 	}
@@ -123,20 +122,16 @@ export class MinecraftHelper {
 				onlyDirectories: true
 			});
 
-			const worlds: World[] = [];
-
-			for (const key in saveFolders) {
-				const saveFolder = saveFolders[key];
-
+			const worlds = saveFolders.map(saveFolder => {
 				const worldName = saveFolder.split('/').reverse()[0];
 				const worldFolder = resolve(saveFolder, saveFolder);
 
-				worlds.push(new World(
+				return new World(
 					worldName,
 					profile,
 					worldFolder
-				));
-			}
+				);
+			});
 
 			return worlds;
 		});
@@ -181,8 +176,7 @@ export class MinecraftHelper {
 			const snapshotJars: string[] = [];
 
 			logger('looking for jar files');
-			for (const key in jarFiles) {
-				const jarFile = jarFiles[key];
+			jarFiles.forEach(jarFile => {
 				const jarVersionAsString = jarFile.split('/').reverse()[0].replace('.jar', '');
 
 				try {
@@ -193,7 +187,7 @@ export class MinecraftHelper {
 					snapshotJars.push(jarVersionAsString);
 					logger('looking for jar files - found snapshot %s', jarVersionAsString);
 				}
-			}
+			});
 
 			if (type === 'latest-release') {
 				return stableJars.sort((cur, next) => cur < next ? -1 : 1)[0].format();

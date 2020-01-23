@@ -1,8 +1,8 @@
 import { resolve } from 'path';
+import { TargetFolder } from '../domain/core/TargetFolder';
+import { TargetWorld } from '../domain/core/TargetWorld';
 import { InvalidProfileError } from '../domain/errors/InvalidProfileError';
 import { Targetable } from '../domain/Targetable';
-import { TargetFolder } from '../domain/TargetFolder';
-import { TargetWorld } from '../domain/TargetWorld';
 import { MinecraftHelper } from '../helpers/MinecraftHelper';
 
 export class TargetFactory {

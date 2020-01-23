@@ -1,6 +1,6 @@
 import { resolve } from 'path';
-import { World } from './minecraft/World';
-import { Targetable } from './Targetable';
+import { World } from '../minecraft/World';
+import { Targetable } from '../Targetable';
 
 export class TargetWorld extends Targetable {
 	constructor(

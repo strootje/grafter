@@ -1,9 +1,9 @@
 import { sep } from 'path';
+import { PackAssets } from '../domain/core/PackAssets';
+import { PackData } from '../domain/core/PackData';
 import { InvalidPackNameError } from '../domain/errors/InvalidPackNameError';
 import { InvalidPackTypeError } from '../domain/errors/InvalidPackTypeError';
 import { Packable, PackType } from '../domain/Packable';
-import { PackAssets } from '../domain/PackAssets';
-import { PackData } from '../domain/PackData';
 
 export class PackFactory {
 	private static readonly ignored: string[] = ['src', 'dist'];

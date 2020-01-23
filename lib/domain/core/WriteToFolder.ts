@@ -1,7 +1,7 @@
 import { writeFile } from 'fs';
 import * as Mkdirp from 'mkdirp';
 import { resolve } from 'path';
-import { Writeable, WriteableBuilder, WriteableBuilderPredicate } from './Writeable';
+import { Writeable, WriteableBuilder, WriteableBuilderPredicate } from '../Writeable';
 
 export class WriteToFolder extends Writeable implements WriteableBuilder {
 	public CreateAsync(predicate: WriteableBuilderPredicate): Promise<void> {

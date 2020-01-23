@@ -1,12 +1,12 @@
 import { debug } from 'debug';
 import { sync as FastGlob } from 'fast-glob';
 import { resolve } from 'path';
+import { SourceReader } from './domain/core/SourceReader';
+import { SourceWatcher } from './domain/core/SourceWatcher';
+import { WriteToArchive } from './domain/core/WriteToArchive';
+import { WriteToFolder } from './domain/core/WriteToFolder';
 import { Packable } from './domain/Packable';
-import { SourceReader } from './domain/SourceReader';
-import { SourceWatcher } from './domain/SourceWatcher';
 import { Targetable } from './domain/Targetable';
-import { WriteToArchive } from './domain/WriteToArchive';
-import { WriteToFolder } from './domain/WriteToFolder';
 import { PackFactory } from './factories/PackFactory';
 import { CacheHelper } from './helpers/CacheHelper';
 
@@ -31,8 +31,9 @@ export class Graft {
 		logger('building packs');
 
 		return this.HandlePackAsync(pack => {
+			const source = new SourceReader(pack);
 			const writer = new WriteToFolder(this.target, pack);
-			const source = new SourceReader(pack, writer);
+			source.pipe(writer);
 
 			return source.ProcessFilesAsync();
 		});
@@ -42,8 +43,9 @@ export class Graft {
 		logger('serving packs');
 
 		return this.HandlePackAsync(pack => {
+			const source = new SourceWatcher(pack);
 			const writer = new WriteToFolder(this.target, pack);
-			const source = new SourceWatcher(pack, writer);
+			source.pipe(writer);
 
 			return source.ProcessFilesAsync();
 		});
@@ -53,22 +55,17 @@ export class Graft {
 		logger('packing packs');
 
 		return this.HandlePackAsync(pack => {
+			const source = new SourceReader(pack);
 			const writer = new WriteToArchive(this.target, pack);
-			const source = new SourceReader(pack, writer);
+			source.pipe(writer);
 
 			return source.ProcessFilesAsync();
 		});
 	}
 
 	private HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
-		const tasks: Promise<void>[] = [];
-		for (const key in this.Packs) {
-			const pack = this.Packs[key];
-			tasks.push(predicate(pack));
-		}
-
-		return Promise.all(tasks)
-			.then(() => logger('-- finished --'));
+		const tasks = this.Packs.map(predicate);
+		return Promise.all(tasks).then(() => logger('-- finished --'));
 	}
 
 	private get Packs(): Packable[] {
@@ -82,15 +79,13 @@ export class Graft {
 				ignore: ['**/dist', '**/graft', '**/node_modules']
 			});
 
-			const packs: Packable[] = [];
-			for (const key in packFolders) {
-				const packFolder = packFolders[key];
+			const packs = packFolders.map(packFolder => {
 				const packFolderPath = resolve(this.rootFolder, packFolder);
 
 				const pack = PackFactory.Create(packFolderPath);
 				logger('searching for packs in `%s` - found', packFolderPath);
-				packs.push(pack);
-			}
+				return pack;
+			});
 
 			return packs;
 		});
