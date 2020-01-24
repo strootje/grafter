@@ -10,7 +10,7 @@ interface CacheStore {
 	[key: string]: any;
 }
 
-const logger = debug('graft:helpers:Cache');
+// const logger = debug('graft:helpers:Cache');
 const tracer = debug('graft:trace:helpers:Cache');
 export class CacheHelper {
 	private static cache: CacheStore = {};
@@ -19,10 +19,14 @@ export class CacheHelper {
 		if (!this.cache[key]) {
 			this.cache[key] = fetcher();
 
-			logger('storing `%s` to cache', key);
+			tracer('storing `%s` to cache', key);
 		}
 
 		tracer('getting `%s` from cache', key);
 		return this.cache[key];
+	}
+
+	public static Scoped<T>(scope: string, key: string, fetcher: CacheFetcher<T>): T {
+		return this.Get(`${scope}:${key}`, fetcher);
 	}
 }

@@ -27,7 +27,7 @@ export class Graft {
 		this.target = opts.target;
 	}
 
-	public async BuildAsync(): Promise<void> {
+	public BuildAsync(): Promise<void> {
 		logger('building packs');
 
 		return this.HandlePackAsync(pack => {
@@ -65,7 +65,7 @@ export class Graft {
 
 	private HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
 		const tasks = this.Packs.map(predicate);
-		return Promise.all(tasks).then(() => logger('-- finished --'));
+		return Promise.all(tasks).then(() => { });
 	}
 
 	private get Packs(): Packable[] {

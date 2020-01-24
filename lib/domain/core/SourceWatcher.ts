@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { Sourceable } from '../Sourceable';
 
 const logger = debug('graft:domain:SourceWatcher');
+const tracer = debug('graft:trace:domain:SourceWatcher');
 export class SourceWatcher extends Sourceable {
 	public async ProcessFilesAsyncInternal(): Promise<void> {
 		return new Promise((done, fatal) => {
@@ -25,9 +26,9 @@ export class SourceWatcher extends Sourceable {
 
 			const log = (key: string, predicate: (filepath: string) => void) => {
 				return (filepath: string) => {
-					logger('%s file %s', key, filepath);
+					tracer('%s file %s', key, filepath);
 					predicate(filepath);
-					logger('%s file %s - done', key, filepath);
+					tracer('%s file %s - done', key, filepath);
 				};
 			};
 

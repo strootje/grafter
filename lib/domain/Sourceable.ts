@@ -1,10 +1,16 @@
-import { debug } from 'debug';
+import { debug, Debugger } from 'debug';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { Subject } from 'rxjs';
+import { CacheHelper } from '../helpers/CacheHelper';
 import { Packable } from './Packable';
 import { WriteableBuilder, WriteableCreator } from './Writeable';
 
 const logger = debug('graft:domain:Sourceable');
+const tracer = debug('graft:trace:domain:Sourceable');
 export abstract class Sourceable {
+	private readonly logger: Debugger;
+	private readonly tracer: Debugger;
 	protected readonly addedSubject: Subject<string>;
 	protected readonly changedSubject: Subject<string>;
 	protected readonly removedSubject: Subject<string>;
@@ -13,6 +19,8 @@ export abstract class Sourceable {
 	constructor(
 		protected readonly pack: Packable
 	) {
+		this.logger = logger.extend(this.pack.Name);
+		this.tracer = tracer.extend(this.pack.Name);
 		this.addedSubject = new Subject<string>();
 		this.changedSubject = new Subject<string>();
 		this.removedSubject = new Subject<string>();
@@ -21,98 +29,65 @@ export abstract class Sourceable {
 
 	public pipe(target: WriteableCreator): void {
 		this.targets.push(target);
+		this.logger('added target');
 	}
-	
+
 	public ProcessFilesAsync(): Promise<void> {
-		let completed = false;
+		let ready = false;
 
-		const complete = () => {
-			logger('completing')
-			this.addedSubject.complete();
-			this.changedSubject.complete();
-			this.removedSubject.complete();
-			completed = true;
-		};
-
-		const WaitTillCompleted = () => new Promise<void>(done => {
-			while (!completed) { logger('spam'); }
-			done();
+		const WaitForTasksAsync = () => new Promise(done => {
+			const timer = setTimeout(() => {
+				if (!ready) { timer.refresh(); }
+				else { done(); }
+			}, 100);
 		});
 
-		const tasks = this.targets.map(target => {
-			return target.CreateAsync(builder => {
-				logger('created');
-				const addedSubscription = this.addedSubject.subscribe(this.CreateAsyncFileEventAddedEventHandler(builder));
-				const changedSubscription = this.changedSubject.subscribe(this.CreateAsyncFileEventChangedEventHandler(builder));
-				const removedSubscription = this.removedSubject.subscribe(this.CreateAsyncFileEventRemovedEventHandler(builder));
-
-				WaitTillCompleted().finally(() => {
-					logger('finished');
-					addedSubscription.unsubscribe();
-					changedSubscription.unsubscribe();
-					removedSubscription.unsubscribe();
-				});
-
-				return Promise.resolve();
-			});
-		});
-		
-		return Promise.all(tasks).then(this.ProcessFilesAsyncInternal).then(complete).then(() => logger('done'));
-	}
-
-	public ProcessFilesAsync_Old1(): Promise<void> {
-		let completed = false;
-
-		const complete = () => {
-			this.addedSubject.complete();
-			this.changedSubject.complete();
-			this.removedSubject.complete();
-			completed = true;
-		};
-		
-		const WaitTillCompleted = () => new Promise<void>(done => {
-			while (!completed) { /* nothing */}
-			logger('waittillcompleted - done');
-			done();
+		const RunOnceAsync = () => CacheHelper.Scoped(this.pack.Name, 'process-files-promise', () => {
+			return this.ProcessFilesAsyncInternal();
 		});
 
-		const tasks = this.targets.map(target => {
-			const listener = target.CreateAsync(builder => {
-				const addedSubscription = this.addedSubject.subscribe(this.CreateAsyncFileEventAddedEventHandler(builder));
-				const changedSubscription = this.changedSubject.subscribe(this.CreateAsyncFileEventChangedEventHandler(builder));
-				const removedSubscription = this.removedSubject.subscribe(this.CreateAsyncFileEventRemovedEventHandler(builder));
+		this.logger('creating target tasks');
+		const tasks = this.targets.map(target => target.CreateAsync(async builder => {
+			const addedSubscription = this.addedSubject.subscribe(this.CreateAsyncFileEventAddedEventHandler(builder));
+			const changedSubscription = this.changedSubject.subscribe(this.CreateAsyncFileEventChangedEventHandler(builder));
+			const removedSubscription = this.removedSubject.subscribe(this.CreateAsyncFileEventRemovedEventHandler(builder));
+			this.logger('subscribed to targets');
 
-				return WaitTillCompleted().finally(() => {
-					addedSubscription.unsubscribe();
-					changedSubscription.unsubscribe();
-					removedSubscription.unsubscribe();
-				});
-			});
+			await WaitForTasksAsync();
+			await RunOnceAsync();
 
-			// TODO: handle file reading / watching
-			return this.ProcessFilesAsyncInternal().then(() => complete()).finally(() => listener);
-		});
+			addedSubscription.unsubscribe();
+			changedSubscription.unsubscribe();
+			removedSubscription.unsubscribe();
+			this.logger('unsubscribed from targets');
+		}));
 
-		return Promise.all(tasks).then(() => logger('-- finished --'));
+
+		ready = true;
+		this.tracer('created %s target tasks', tasks.length);
+		return Promise.all(tasks).then(() => { });
 	}
 
 	protected abstract ProcessFilesAsyncInternal(): Promise<void>;
 
-	protected CreateAsyncFileEventAddedEventHandler(_builder: WriteableBuilder) {
-		return async (filepath: string): Promise<void> => {
-			logger('added', filepath);
-		};
+	private CreateAsyncFileEventAddedEventHandler(builder: WriteableBuilder) {
+		return (filepath: string) => {
+			const fullpath = resolve(this.pack.Folder, filepath);
+			this.logger('handling `added` -> `%s`', filepath);
+
+			const data = readFileSync(fullpath, 'utf-8');
+			builder.Add(filepath, data);
+		}
 	}
 
-	protected CreateAsyncFileEventChangedEventHandler(_builder: WriteableBuilder) {
-		return async (filepath: string): Promise<void> => {
-			logger('changed', filepath);
-		};
+	private CreateAsyncFileEventChangedEventHandler(builder: WriteableBuilder) {
+		return this.CreateAsyncFileEventAddedEventHandler(builder);
 	}
 
-	protected CreateAsyncFileEventRemovedEventHandler(_builder: WriteableBuilder) {
-		return async (filepath: string): Promise<void> => {
-			logger('removed', filepath);
+	private CreateAsyncFileEventRemovedEventHandler(builder: WriteableBuilder) {
+		return (filepath: string) => {
+			this.logger('handling `removed` -> `%s`', filepath);
+			builder.Remove(filepath);
 		};
 	}
 }

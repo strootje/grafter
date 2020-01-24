@@ -1,38 +1,47 @@
-import { writeFile } from 'fs';
-import * as Mkdirp from 'mkdirp';
-import { resolve } from 'path';
+import { debug } from 'debug';
+import { sync as EmptyDirSync } from 'empty-dir';
+import { rmdirSync, unlinkSync, writeFileSync } from 'fs';
+import { sync as MkdirpSync } from 'mkdirp';
+import { dirname, resolve } from 'path';
 import { Writeable, WriteableBuilder, WriteableBuilderPredicate } from '../Writeable';
 
+// const logger = debug('graft:domain:WriteToFolder');
+const tracer = debug('graft:trace:domain:WriteToFolder');
 export class WriteToFolder extends Writeable implements WriteableBuilder {
-	public CreateAsync(predicate: WriteableBuilderPredicate): Promise<void> {
-		return new Promise((done, fatal) => {
-			const basepath = resolve(this.pack.Type === 'assets' ? this.target.FolderAssets : this.target.FolderData, this.pack.Name);
-			const typedpath = resolve(basepath, this.pack.Type);
+	public async CreateAsync(predicate: WriteableBuilderPredicate): Promise<void> {
+		tracer('creating `%s`', this.Typedpath);
+		MkdirpSync(this.Typedpath);
 
-			Mkdirp(typedpath, err => {
-				if (err) {
-					fatal(err);
-					return;
-				}
+		const manifestpath = resolve(this.Basepath, 'pack.mcmeta');
+		tracer('creating `%s`', manifestpath);
+		writeFileSync(manifestpath, JSON.stringify(this.pack.Manifest));
 
-				const manifestpath = resolve(basepath, 'pack.mcmeta');
-				writeFile(manifestpath, JSON.stringify(this.pack.Manifest), err => {
-					if (err) {
-						fatal(err);
-						return;
-					}
-
-					done(predicate(this));
-				});
-			});
-		});
+		await predicate(this);
 	}
 
-	public AddAsync(_path: string, _content: string): Promise<void> {
-		throw new Error("Method not implemented.");
+	public Add(path: string, content: string): void {
+		const filepath = resolve(this.Typedpath, path);
+		const basepath = dirname(filepath);
+
+		MkdirpSync(basepath);
+		writeFileSync(filepath, content)
 	}
 
-	public RemoveAsync(_path: string): Promise<void> {
-		throw new Error("Method not implemented.");
+	public Remove(path: string): void {
+		const filepath = resolve(this.Typedpath, path);
+
+		unlinkSync(filepath);
+		this.RemoveEmptyFolder(filepath);
+	}
+
+	private RemoveEmptyFolder(path: string): void {
+		const basepath = dirname(path);
+
+		if (!EmptyDirSync(basepath)) {
+			return;
+		}
+
+		rmdirSync(basepath);
+		this.RemoveEmptyFolder(basepath);
 	}
 }

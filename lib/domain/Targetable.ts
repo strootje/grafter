@@ -11,11 +11,11 @@ export abstract class Targetable {
 	public get Profile(): Profile {
 		return this.profile;
 	}
-	
+
 	public get FolderAssets(): string {
 		return this.folderAssets;
 	}
-	
+
 	public get FolderData(): string {
 		return this.folderData;
 	}

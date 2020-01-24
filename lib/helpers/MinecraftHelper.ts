@@ -43,7 +43,7 @@ export class MinecraftHelper {
 					logger('building profile `%s:%s` - skip', profile.type, profile.name);
 				}
 			});
-			
+
 			return profiles;
 		});
 	}
@@ -114,7 +114,7 @@ export class MinecraftHelper {
 	}
 
 	public static GetWorldsForProfile(profile: Profile): World[] {
-		return CacheHelper.Get(`profile-${profile.Name}-worlds`, () => {
+		return CacheHelper.Scoped(profile.Name, 'profile-worlds', () => {
 			const savesFolder = resolve(profile.Folder, 'saves');
 
 			const saveFolders = FastGlob('*', {
@@ -138,7 +138,7 @@ export class MinecraftHelper {
 	}
 
 	public static GetJarPath(type: ProfilesJsonProfileType, version: ProfilesJsonProfileVersion): string {
-		return CacheHelper.Get(`game-jar-path-${type}-${version}`, () => {
+		return CacheHelper.Scoped(`${type}-${version}`, 'game-jar-path', () => {
 			if (type === 'latest-release' || type === 'latest-snapshot') {
 				version = this.GetLatestInstalledJarVersion(type);
 			}
@@ -148,7 +148,7 @@ export class MinecraftHelper {
 	}
 
 	public static GetJarPathByVersion(version: ProfilesJsonProfileVersion): string {
-		return CacheHelper.Get(`game-jar-path-${version}`, () => {
+		return CacheHelper.Scoped(version, 'game-jar-path', () => {
 			const versionFolder = resolve(this.GameFolder, 'versions');
 			const jarPath = resolve(versionFolder, version, `${version}.jar`);
 
@@ -166,7 +166,7 @@ export class MinecraftHelper {
 	private static GetLatestInstalledJarVersion(type: ProfilesJsonProfileType): string {
 		const versionFolder = resolve(this.GameFolder, 'versions');
 
-		return CacheHelper.Get(`game-latest-version-${type}`, () => {
+		return CacheHelper.Scoped(type, 'game-latest-version', () => {
 			const jarFiles = FastGlob('**/*.jar', {
 				cwd: versionFolder,
 				onlyFiles: true
