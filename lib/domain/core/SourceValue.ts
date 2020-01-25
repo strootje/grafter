@@ -3,14 +3,14 @@ import { Packable } from '../Packable';
 import { Sourceable, SourceAttributes } from '../Sourceable';
 import { WriteableBuilder } from '../Writeable';
 
-export class SourceMemory extends Sourceable implements GrayMatterFile<string> {
+export class SourceValue extends Sourceable implements GrayMatterFile<string> {
 	private _content: string;
 	private _data: SourceAttributes;
 	private _language: string;
 
-	constructor(pack: Packable, path: string, builder: WriteableBuilder) {
+	constructor(pack: Packable, path: string, builder: WriteableBuilder, value: string) {
 		super(pack, path, builder);
-		this._content = '';
+		this._content = value;
 	}
 
 	public get content(): string {
@@ -33,9 +33,7 @@ export class SourceMemory extends Sourceable implements GrayMatterFile<string> {
 		return this;
 	}
 
-	public Write(content: string): void {
-		this._content = content;
-		super.Write(content);
+	public Write(): void {
 	}
 
 	public get excerpt(): string {

@@ -14,7 +14,7 @@ export abstract class Sourceable {
 	) {
 	}
 
-	protected get TargetPath(): string {
+	public get TargetPath(): string {
 		return this.path;
 	}
 

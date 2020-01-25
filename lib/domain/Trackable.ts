@@ -1,9 +1,15 @@
 import { Subject } from 'rxjs';
 
-export interface FileEvent {
-	readonly source?: string;
+export interface FileEventNoSource {
 	readonly filepath: string;
 }
+
+export interface FileEventWithSource extends FileEventNoSource {
+	source: string;
+	value?: string;
+}
+
+export type FileEvent = FileEventNoSource | FileEventWithSource;
 
 export abstract class Trackable {
 	private readonly added$: Subject<FileEvent>;

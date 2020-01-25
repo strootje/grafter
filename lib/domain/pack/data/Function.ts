@@ -20,11 +20,17 @@ export class Function extends Changeable {
 
 		if (!!data.tag) {
 			this.tag = tag as string;
-			this.Changed$.next({ source: this.Filepath, filepath: tagpath });
+			const funcname = this.Filename.split('.')[0];
+
+			const tagvalue = JSON.stringify({
+				values: [`${this.Namespace}:${funcname}`]
+			});
+
+			this.Changed$.next({ filepath: tagpath, source: this.Filepath, value: tagvalue });
 			this.tag = data.tag;
 		} else {
 			if (this.tag) {
-				this.Removed$.next({ source: this.Filepath, filepath: tagpath });
+				this.Removed$.next({ filepath: tagpath, source: this.Filepath });
 				this.tag = null;
 			}
 		}

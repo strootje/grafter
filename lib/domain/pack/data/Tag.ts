@@ -7,6 +7,6 @@ export interface TagJson {
 
 export class Tag extends Changeable {
 	protected ParseMatter(data: SourceAttributes): void {
-		this.logger('not doing that much atm.. %o', data);
+		this.logger('data: %o', data);
 	}
 }

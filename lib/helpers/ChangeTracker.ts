@@ -1,5 +1,6 @@
 import { debug, Debugger } from 'debug';
 import { Changeable } from '../domain/Changeable';
+import { SourceValue } from '../domain/core/SourceValue';
 import { Packable } from '../domain/Packable';
 import { FileEvent } from '../domain/Trackable';
 import { WriteableBuilder } from '../domain/Writeable';
@@ -35,7 +36,9 @@ export class ChangeTracker {
 		this.EnsureExists(event.filepath);
 		this.logger('file changed received (%o)', event);
 
-		// TODO: something with source
+		if ('source' in event) {
+			this.files[event.filepath].file.AddSource(event.source, new SourceValue(this.pack, event.source, this.builder, event.value || ''));
+		}
 
 		this.files[event.filepath].file.Update();
 	}
@@ -44,16 +47,21 @@ export class ChangeTracker {
 		this.ThrowIfNotFound(event.filepath);
 		this.logger('file removed received (%o)', event);
 
-		// TODO: something with source
+		if ('source' in event) {
+			this.files[event.filepath].file.RemoveSource(event.source);
+			this.files[event.filepath].file.Update();
+		}
 
-		this.files[event.filepath].file.Remove();
-		this.files[event.filepath].unsubscribe();
-		delete this.files[event.filepath];
+		if (!this.files[event.filepath].file.HasSources || !('source' in event)) {
+			this.files[event.filepath].file.Remove();
+			this.files[event.filepath].unsubscribe();
+			delete this.files[event.filepath];
+		}
 	}
 
 	private EnsureExists(filepath: string): void {
 		if (!this.files[filepath]) {
-			const file = FileFactory.Create(filepath, this, this.pack, this.builder);
+			const file = FileFactory.Create(filepath, this.pack, this.builder);
 			const addedSubscription = file.Added$.subscribe(this.HandleAdded.bind(this));
 			const changedSubscription = file.Changed$.subscribe(this.HandleChanged.bind(this));
 			const removedSubscription = file.Removed$.subscribe(this.HandleRemoved.bind(this));
