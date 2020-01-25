@@ -1,4 +1,5 @@
 # Graft
+[![Build Status](https://drone.strootje.com/api/badges/strootje/graft/status.svg)](https://drone.strootje.com/strootje/graft)
 
 ## TODO
 add the `--merge` option. This merges all packs into one split up into namespaces
