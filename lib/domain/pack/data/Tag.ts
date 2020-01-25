@@ -1,15 +1,12 @@
-import { Mergeable, Watchable } from '../../Watchable';
+import { Changeable } from '../../Changeable';
+import { SourceAttributes } from '../../Sourceable';
 
 export interface TagJson {
 	values: string[];
 }
 
-export class Tag extends Watchable implements Mergeable<TagJson> {
-	public get Content(): TagJson {
-		return { values: [] };
-	}
-
-	MergeWith(_json: TagJson): void {
-		throw new Error("Method not implemented.");
+export class Tag extends Changeable {
+	protected ParseMatter(data: SourceAttributes): void {
+		this.logger('not doing that much atm.. %o', data);
 	}
 }

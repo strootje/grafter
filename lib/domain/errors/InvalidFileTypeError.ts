@@ -1,4 +1,4 @@
-import { FileType } from '../Watchable';
+import { FileType } from '../Changeable';
 
 export class InvalidFileTypeError extends Error {
 	constructor(type: FileType) {

@@ -1,8 +1,8 @@
 import { debug } from 'debug';
 import { sync as FastGlob } from 'fast-glob';
 import { resolve } from 'path';
-import { SourceReader } from './domain/core/SourceReader';
-import { SourceWatcher } from './domain/core/SourceWatcher';
+import { ReadContinues } from './domain/core/ReadContinues';
+import { ReadOnce } from './domain/core/ReadOnce';
 import { WriteToArchive } from './domain/core/WriteToArchive';
 import { WriteToFolder } from './domain/core/WriteToFolder';
 import { Packable } from './domain/Packable';
@@ -31,11 +31,11 @@ export class Graft {
 		logger('building packs');
 
 		return this.HandlePackAsync(pack => {
-			const source = new SourceReader(pack);
+			const reader = new ReadOnce(pack);
 			const writer = new WriteToFolder(this.target, pack);
-			source.pipe(writer);
+			reader.pipe(writer);
 
-			return source.ProcessFilesAsync();
+			return reader.ProcessFilesAsync();
 		});
 	}
 
@@ -43,11 +43,11 @@ export class Graft {
 		logger('serving packs');
 
 		return this.HandlePackAsync(pack => {
-			const source = new SourceWatcher(pack);
+			const reader = new ReadContinues(pack);
 			const writer = new WriteToFolder(this.target, pack);
-			source.pipe(writer);
+			reader.pipe(writer);
 
-			return source.ProcessFilesAsync();
+			return reader.ProcessFilesAsync();
 		});
 	}
 
@@ -55,17 +55,19 @@ export class Graft {
 		logger('packing packs');
 
 		return this.HandlePackAsync(pack => {
-			const source = new SourceReader(pack);
+			const reader = new ReadOnce(pack);
 			const writer = new WriteToArchive(this.target, pack);
-			source.pipe(writer);
+			reader.pipe(writer);
 
-			return source.ProcessFilesAsync();
+			return reader.ProcessFilesAsync();
 		});
 	}
 
-	private HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
-		const tasks = this.Packs.map(predicate);
-		return Promise.all(tasks).then(() => { });
+	private async HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
+		// const tasks = this.Packs.map(predicate);
+		// await Promise.all(tasks);
+
+		await predicate(this.Packs[1]);
 	}
 
 	private get Packs(): Packable[] {

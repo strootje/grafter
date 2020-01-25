@@ -1,11 +1,12 @@
 import { watch as Chokidar } from 'chokidar';
 import { debug } from 'debug';
 import { Subject } from 'rxjs';
-import { Sourceable } from '../Sourceable';
+import { Readable } from '../Readable';
+import { FileEvent } from '../Trackable';
 
-const logger = debug('graft:domain:SourceWatcher');
-const tracer = debug('graft:trace:domain:SourceWatcher');
-export class SourceWatcher extends Sourceable {
+const logger = debug('graft:domain:ReadContinues');
+const tracer = debug('graft:trace:domain:ReadContinues');
+export class ReadContinues extends Readable {
 	public async ProcessFilesAsyncInternal(): Promise<void> {
 		return new Promise((done, fatal) => {
 			const watcher = Chokidar('**/*', {
@@ -32,15 +33,15 @@ export class SourceWatcher extends Sourceable {
 				};
 			};
 
-			const handle = (subject: Subject<string>) => {
+			const handle = (subject: Subject<FileEvent>) => {
 				return (filepath: string) => {
-					subject.next(filepath);
+					subject.next({ filepath });
 				};
 			};
 
-			watcher.on('add', reset(log('adding', handle(this.addedSubject))));
-			watcher.on('change', reset(log('changing', handle(this.changedSubject))));
-			watcher.on('unlink', reset(log('removing', handle(this.removedSubject))));
+			watcher.on('add', reset(log('adding', handle(this.Added$))));
+			watcher.on('change', reset(log('changing', handle(this.Changed$))));
+			watcher.on('unlink', reset(log('removing', handle(this.Removed$))));
 
 			watcher.on('error', reset<Error>(err => {
 				logger('error while processing - error %s', err);
