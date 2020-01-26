@@ -63,14 +63,12 @@ export abstract class Changeable extends Trackable {
 		this.logger('updating');
 
 		const { data, content } = this.source.Read();
-		this.logger('orig content -->> %o', content);
 		this.ParseMatter(data);
 
 		const merged = Object.values(this.mergables)
 			.map(source => source.Read().content)
 			.reduce(MergeHelper.CreateReducer(this.source.TargetPath), content);
 
-		this.logger('writing content `%s`', merged);
 		this.source.Write(merged);
 	}
 

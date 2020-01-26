@@ -2,7 +2,7 @@
 	"private": true,
 	"name": "graft",
 	"version": "0.1.0",
-	"main": "./dist/bin/index.js",
+	"bin": "./dist/bin/index.js",
 	"scripts": {
 		"clean": "rimraf ./dist",
 		"prebuild": "pnpm run clean",

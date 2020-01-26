@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 
 import { resolve } from 'path';
 import * as Yargs from 'yargs';

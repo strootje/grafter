@@ -64,11 +64,8 @@ export class Graft {
 	}
 
 	private async HandlePackAsync(predicate: HandlePackPredicate): Promise<void> {
-		// const tasks = this.Packs.map(predicate);
-		// await Promise.all(tasks);
-
-		logger('TODO: disable this');
-		await predicate(this.Packs[1]);
+		const tasks = this.Packs.map(predicate);
+		await Promise.all(tasks);
 	}
 
 	private get Packs(): Packable[] {

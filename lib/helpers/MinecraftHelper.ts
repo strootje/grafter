@@ -122,9 +122,9 @@ export class MinecraftHelper {
 				onlyDirectories: true
 			});
 
-			const worlds = saveFolders.map(saveFolder => {
-				const worldName = saveFolder.split('/').reverse()[0];
-				const worldFolder = resolve(saveFolder, saveFolder);
+			const worlds = saveFolders.map(worldSaveFolder => {
+				const worldName = worldSaveFolder.split('/').reverse()[0];
+				const worldFolder = resolve(savesFolder, worldSaveFolder);
 
 				return new World(
 					worldName,
@@ -190,9 +190,15 @@ export class MinecraftHelper {
 			});
 
 			if (type === 'latest-release') {
-				return stableJars.sort((cur, next) => cur < next ? -1 : 1)[0].format();
+				const selected = stableJars.sort((cur, next) => cur < next ? 1 : -1)[0].format();
+				logger('selected `type` == `%s`', type, selected);
+
+				return selected;
 			} else {
-				return snapshotJars.sort((cur, next) => cur < next ? -1 : 1)[0];
+				const selected = snapshotJars.sort((cur, next) => cur < next ? 1 : -1)[0];
+				logger('selected `type` == `%s`', type, selected);
+
+				return selected;
 			}
 		});
 	}
