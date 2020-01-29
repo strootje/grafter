@@ -5,8 +5,8 @@ import { sync as MkdirpSync } from 'mkdirp';
 import { dirname, resolve } from 'path';
 import { Writeable, WriteableBuilder, WriteableBuilderPredicate } from '../Writeable';
 
-// const logger = debug('graft:domain:WriteToFolder');
-const tracer = debug('graft:trace:domain:WriteToFolder');
+// const logger = debug('grafter:domain:WriteToFolder');
+const tracer = debug('grafter:trace:domain:WriteToFolder');
 export class WriteToFolder extends Writeable implements WriteableBuilder {
 	public async CreateAsync(predicate: WriteableBuilderPredicate): Promise<void> {
 		tracer('creating `%s`', this.Typedpath);

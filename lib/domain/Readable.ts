@@ -5,8 +5,8 @@ import { Packable } from './Packable';
 import { Trackable } from './Trackable';
 import { WriteableCreator } from './Writeable';
 
-const logger = debug('graft:domain:Readable');
-const tracer = debug('graft:trace:domain:Readable');
+const logger = debug('grafter:domain:Readable');
+const tracer = debug('grafter:trace:domain:Readable');
 export abstract class Readable extends Trackable {
 	private readonly logger: Debugger;
 	private readonly tracer: Debugger;

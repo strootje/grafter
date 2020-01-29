@@ -10,7 +10,7 @@ import { Profile } from '../domain/minecraft/Profile';
 import { World } from '../domain/minecraft/World';
 import { CacheHelper } from './CacheHelper';
 
-const logger = debug('graft:helper:Minecraft');
+const logger = debug('grafter:helper:Minecraft');
 export class MinecraftHelper {
 	private static readonly pickFirstWorld = true;
 

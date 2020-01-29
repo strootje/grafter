@@ -10,8 +10,8 @@ interface CacheStore {
 	[key: string]: any;
 }
 
-// const logger = debug('graft:helpers:Cache');
-const tracer = debug('graft:trace:helpers:Cache');
+// const logger = debug('grafter:helpers:Cache');
+const tracer = debug('grafter:trace:helpers:Cache');
 export class CacheHelper {
 	private static cache: CacheStore = {};
 

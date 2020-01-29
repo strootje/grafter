@@ -20,7 +20,7 @@ export interface CoercedCommandArgs {
 export type HandlecommandArgsPredicate = (args: CommandArgs) => Promise<void>;
 export type HandleCoercedCommandArgsPredicate = (args: CoercedCommandArgs) => Promise<void>;
 
-const logger = debug('graft:helpers:Args');
+const logger = debug('grafter:helpers:Args');
 export class ArgsHelper {
 	public static CheckForValidProfile(args: Arguments<CommandArgs>): boolean {
 		logger('checking for valid profile');
@@ -51,7 +51,7 @@ export class ArgsHelper {
 	public static Coerce(predicate: HandleCoercedCommandArgsPredicate): HandlecommandArgsPredicate {
 		return (args: CommandArgs) => {
 			const target = TargetFactory.Create(args.target, args.profile);
-			
+
 			return predicate({
 				profile: target.Profile,
 				target: target,

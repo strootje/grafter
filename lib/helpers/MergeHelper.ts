@@ -1,7 +1,7 @@
 import { debug } from 'debug';
 import { concatArrays, merge as MergeAnything } from 'merge-anything';
 
-const logger = debug('graft:helpers:Merge');
+const logger = debug('grafter:helpers:Merge');
 export class MergeHelper {
 	public static CreateReducer(filepath: string): (first: string, second: string) => string {
 		const filepathext = filepath.split('.').reverse()[0];

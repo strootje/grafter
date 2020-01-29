@@ -1,8 +1,8 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node
 
 import { resolve } from 'path';
 import * as Yargs from 'yargs';
-import { Graft } from '../lib';
+import { Grafter } from '../lib';
 import { ArgsHelper } from '../lib/helpers/ArgsHelper';
 
 const setup = (builder: Yargs.Argv) => builder
@@ -12,30 +12,30 @@ const setup = (builder: Yargs.Argv) => builder
 	.check(ArgsHelper.CheckForValidProfile);
 
 Yargs.command('build [target] [source]', 'Build the pack', setup, ArgsHelper.Coerce(args => {
-	const graft = new Graft({
+	const grafter = new Grafter({
 		rootFolder: args.source,
 		target: args.target
 	});
 
-	return graft.BuildAsync();
+	return grafter.BuildAsync();
 }));
 
 Yargs.command('serve [target] [source]', 'Builds the pack and watch for changes', setup, ArgsHelper.Coerce(args => {
-	const graft = new Graft({
+	const grafter = new Grafter({
 		rootFolder: args.source,
 		target: args.target
 	});
 
-	return graft.ServeAsync();
+	return grafter.ServeAsync();
 }));
 
 Yargs.command('pack [target] [source]', 'Builds the pack and creates an archive', setup, ArgsHelper.Coerce(args => {
-	const graft = new Graft({
+	const grafter = new Grafter({
 		rootFolder: args.source,
 		target: args.target
 	});
 
-	return graft.PackAsync();
+	return grafter.PackAsync();
 }));
 
 Yargs.parse();

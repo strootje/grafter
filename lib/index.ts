@@ -10,19 +10,19 @@ import { Targetable } from './domain/Targetable';
 import { PackFactory } from './factories/PackFactory';
 import { CacheHelper } from './helpers/CacheHelper';
 
-export interface GraftOpts {
+export interface GrafterOpts {
 	rootFolder: string;
 	target: Targetable;
 }
 
 type HandlePackPredicate = (pack: Packable) => Promise<void>;
 
-const logger = debug('graft:lib:Graft');
-export class Graft {
+const logger = debug('grafter:lib:Grafter');
+export class Grafter {
 	protected readonly rootFolder: string;
 	protected readonly target: Targetable;
 
-	constructor(opts: GraftOpts) {
+	constructor(opts: GrafterOpts) {
 		this.rootFolder = opts.rootFolder;
 		this.target = opts.target;
 	}
@@ -76,7 +76,7 @@ export class Graft {
 			const packFolders = FastGlob(['**/assets', '**/data'], {
 				cwd: folder,
 				onlyDirectories: true,
-				ignore: ['**/dist', '**/graft', '**/node_modules']
+				ignore: ['**/dist', '**/grafter', '**/node_modules']
 			});
 
 			const packs = packFolders.map(packFolder => {

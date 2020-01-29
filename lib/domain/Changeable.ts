@@ -10,7 +10,7 @@ export interface ListOfSources {
 	[key: string]: Sourceable;
 }
 
-const logger = debug('graft:domain:Changeable');
+const logger = debug('grafter:domain:Changeable');
 export abstract class Changeable extends Trackable {
 	protected readonly logger: Debugger;
 	protected readonly mergables: ListOfSources;

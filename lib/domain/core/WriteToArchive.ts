@@ -6,8 +6,8 @@ import { resolve } from 'path';
 import { Packable } from '../Packable';
 import { Writeable, WriteableBuilder, WriteableBuilderPredicate } from '../Writeable';
 
-const logger = debug('graft:domain:WriteToArchive');
-const tracer = debug('graft:trace:domain:WriteToArchive');
+const logger = debug('grafter:domain:WriteToArchive');
+const tracer = debug('grafter:trace:domain:WriteToArchive');
 export class WriteToArchive extends Writeable {
 	public async CreateAsync(predicate: WriteableBuilderPredicate): Promise<void> {
 		const basepath = resolve(this.pack.Type === 'assets' ? this.target.FolderAssets : this.target.FolderData);

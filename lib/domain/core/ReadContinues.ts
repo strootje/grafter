@@ -4,8 +4,8 @@ import { Subject } from 'rxjs';
 import { Readable } from '../Readable';
 import { FileEvent } from '../Trackable';
 
-const logger = debug('graft:domain:ReadContinues');
-const tracer = debug('graft:trace:domain:ReadContinues');
+const logger = debug('grafter:domain:ReadContinues');
+const tracer = debug('grafter:trace:domain:ReadContinues');
 export class ReadContinues extends Readable {
 	public async ProcessFilesAsyncInternal(): Promise<void> {
 		return new Promise((done, fatal) => {

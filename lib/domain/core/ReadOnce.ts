@@ -2,8 +2,8 @@ import { debug } from 'debug';
 import { stream as FastGlob } from 'fast-glob';
 import { Readable } from '../Readable';
 
-const logger = debug('graft:domain:ReadOnce');
-const tracer = debug('graft:trace:domain:ReadOnce');
+const logger = debug('grafter:domain:ReadOnce');
+const tracer = debug('grafter:trace:domain:ReadOnce');
 export class ReadOnce extends Readable {
 	public async ProcessFilesAsyncInternal(): Promise<void> {
 		const files = FastGlob('**/*', {

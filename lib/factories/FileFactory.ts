@@ -11,7 +11,7 @@ import { Packable } from '../domain/Packable';
 import { Sourceable } from '../domain/Sourceable';
 import { WriteableBuilder } from '../domain/Writeable';
 
-const logger = debug('graft:factories:File');
+const logger = debug('grafter:factories:File');
 export class FileFactory {
 	public static Create(filepath: string, pack: Packable, builder: WriteableBuilder) {
 		const [filenamespace, filename, filetype] = this.ParseFileNameAndType(filepath);

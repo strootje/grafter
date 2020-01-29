@@ -13,7 +13,7 @@ interface Changeables {
 	};
 }
 
-const logger = debug('graft:helpers:ChangeTracker');
+const logger = debug('grafter:helpers:ChangeTracker');
 export class ChangeTracker {
 	private readonly logger: Debugger;
 	private readonly files: Changeables;

@@ -6,7 +6,7 @@ import { InvalidProfileError } from '../domain/errors/InvalidProfileError';
 import { Targetable } from '../domain/Targetable';
 import { MinecraftHelper } from '../helpers/MinecraftHelper';
 
-const logger = debug('graft:factories:Target');
+const logger = debug('grafter:factories:Target');
 export class TargetFactory {
 	public static Create(basefolder: string, profileName: string): Targetable {
 		try {

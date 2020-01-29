@@ -1,13 +1,13 @@
 {
 	"private": true,
-	"name": "graft",
+	"name": "grafter",
 	"version": "0.1.0",
 	"bin": "./dist/bin/index.js",
 	"scripts": {
 		"clean": "rimraf ./dist",
 		"prebuild": "pnpm run clean",
 		"build": "tsc -p ./",
-		"test": "env DEBUG=graft:*,-graft:trace:* ./bin/index.ts"
+		"test": "env DEBUG=grafter:*,-grafter:trace:* ./bin/index.ts"
 	},
 	"dependencies": {
 		"archiver": "^3.1.1",
