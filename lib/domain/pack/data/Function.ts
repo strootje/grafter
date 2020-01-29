@@ -9,6 +9,18 @@ export class Function extends Changeable {
 		this.ParseTag(data);
 	}
 
+	protected ParseContent(content: string): string {
+		const lines = content.replace('\r', '').split('\n');
+
+		lines.forEach(line => {
+			if (line.indexOf('#if ') >= 0) {
+
+			}
+		});
+
+		return lines.join('\n');
+	}
+
 	private ParseTag(data: SourceAttributes): void {
 		const tag = data.tag || this.tag;
 		if (!tag) {

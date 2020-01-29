@@ -69,7 +69,8 @@ export abstract class Changeable extends Trackable {
 			.map(source => source.Read().content)
 			.reduce(MergeHelper.CreateReducer(this.source.TargetPath), content);
 
-		this.source.Write(merged);
+		const transformed = this.ParseContent(merged);
+		this.source.Write(transformed);
 	}
 
 	public Remove(): void {
@@ -78,5 +79,10 @@ export abstract class Changeable extends Trackable {
 		this.source.Remove();
 	}
 
-	protected abstract ParseMatter(data: SourceAttributes): void;
+	protected ParseMatter(_data: SourceAttributes): void {
+	}
+
+	protected ParseContent(content: string): string {
+		return content;
+	}
 }
