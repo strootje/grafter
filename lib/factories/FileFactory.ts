@@ -4,8 +4,8 @@ import { resolve, sep } from 'path';
 import { FileType } from '../domain/Changeable';
 import { SourceEmpty } from '../domain/core/SourceEmpty';
 import { SourceFile } from '../domain/core/SourceFile';
-import { InvalidFileTypeError } from '../domain/errors/InvalidFileTypeError';
 import { Function } from '../domain/pack/data/Function';
+import { Generic } from '../domain/pack/data/Generic';
 import { Tag } from '../domain/pack/data/Tag';
 import { Packable } from '../domain/Packable';
 import { Sourceable } from '../domain/Sourceable';
@@ -20,7 +20,7 @@ export class FileFactory {
 		switch (filetype) {
 			case 'functions': return new Function(source, filenamespace, filetype, filename);
 			case 'tags': return new Tag(source, filenamespace, filetype, filename);
-			default: throw new InvalidFileTypeError(filetype);
+			default: return new Generic(source, filenamespace, filetype, filename);
 		}
 	}
 
