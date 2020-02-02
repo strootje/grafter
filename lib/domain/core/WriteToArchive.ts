@@ -3,13 +3,16 @@ import { debug } from 'debug';
 import { createWriteStream } from 'fs';
 import { sync as MkdirpSync } from 'mkdirp';
 import { resolve } from 'path';
+import { FileAddedEvent } from '../events/FileAddedEvent';
+import { FileChangedEvent } from '../events/FileChangedEvent';
+import { FileRemovedEvent } from '../events/FileRemovedEvent';
 import { Packable } from '../Packable';
-import { Writeable, WriteableBuilder, WriteableBuilderPredicate } from '../Writeable';
+import { Writeable, WriteableBuilder } from '../Writeable';
 
 const logger = debug('grafter:domain:WriteToArchive');
 const tracer = debug('grafter:trace:domain:WriteToArchive');
 export class WriteToArchive extends Writeable {
-	public async CreateAsync(predicate: WriteableBuilderPredicate): Promise<void> {
+	public Create(): WriteableBuilder {
 		const basepath = resolve(this.pack.Type === 'assets' ? this.target.FolderAssets : this.target.FolderData);
 
 		tracer('creating `%s`', basepath);
@@ -29,32 +32,42 @@ export class WriteToArchive extends Writeable {
 		});
 
 		const builder = new WriterToArchiveBuilder(
-			this.pack,
-			archive
+			this.pack, archive, archive.finalize
 		);
 
-		await predicate(builder);
-		await archive.finalize();
+		return builder;
 	}
 }
 
-export class WriterToArchiveBuilder implements WriteableBuilder {
+export class WriterToArchiveBuilder extends WriteableBuilder {
 	constructor(
 		private readonly pack: Packable,
-		private readonly archive: Archiver
+		private readonly archive: Archiver,
+		private readonly finalize: () => Promise<void>
 	) {
-
+		super();
 	}
 
-	public Add(path: string, content: string): void {
-		this.archive.append(content, {
-			name: `${this.pack.Type}/${path}`
+	public async FinalizeAsync(): Promise<void> {
+		await Promise.all([
+			super.FinalizeAsync(),
+			this.finalize()
+		]);
+	}
+
+	public HandleAdded(args: FileAddedEvent): void {
+		this.HandleChanged(args);
+	}
+
+	public HandleChanged(args: FileChangedEvent): void {
+		this.archive.append(args.Content, {
+			name: `${this.pack.Type}/${args.Targetpath}`
 		});
 	}
 
-	public Remove(path: string): void {
+	public HandleRemoved(args: FileRemovedEvent): void {
 		this.archive.append('', {
-			name: `${this.pack.Type}/${path}`
+			name: `${this.pack.Type}/${args.Targetpath}`
 		});
 	}
 }

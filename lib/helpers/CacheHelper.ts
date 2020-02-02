@@ -29,4 +29,12 @@ export class CacheHelper {
 	public static Scoped<T>(scope: string, key: string, fetcher: CacheFetcher<T>): T {
 		return this.Get(`${scope}:${key}`, fetcher);
 	}
+
+	public static Reset(key: string): void {
+		delete this.cache[key];
+	}
+
+	public static ResetScoped(scope: string, key: string): void {
+		this.Reset(`${scope}:${key}`);
+	}
 }

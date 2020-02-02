@@ -1,3 +1,4 @@
+import { basename } from 'path';
 import { Profile } from '../minecraft/Profile';
 import { Targetable } from '../Targetable';
 
@@ -6,6 +7,6 @@ export class TargetFolder extends Targetable {
 		profile: Profile,
 		folder: string
 	) {
-		super(profile, folder, folder)
+		super(basename(folder), profile, folder, folder)
 	}
 }

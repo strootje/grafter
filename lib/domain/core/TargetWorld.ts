@@ -6,6 +6,6 @@ export class TargetWorld extends Targetable {
 	constructor(
 		world: World
 	) {
-		super(world.Profile, resolve(world.Profile.Folder, 'resourcepacks'), resolve(world.Folder, 'datapacks'));
+		super(world.Name, world.Profile, resolve(world.Profile.Folder, 'resourcepacks'), resolve(world.Folder, 'datapacks'));
 	}
 }

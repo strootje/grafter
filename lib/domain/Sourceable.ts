@@ -1,30 +1,14 @@
-import { GrayMatterFile } from 'gray-matter';
-import { Packable } from './Packable';
-import { WriteableBuilder } from './Writeable';
-
 export interface SourceAttributes {
-	[key: string]: any;
+	[key: string]: string;
 }
 
-export abstract class Sourceable {
+export abstract class Sourceable<T> {
 	public constructor(
-		protected readonly pack: Packable,
-		protected readonly path: string,
-		protected readonly builder: WriteableBuilder
+		private readonly attributes: SourceAttributes,
+		private readonly content: string
 	) {
 	}
 
-	public get TargetPath(): string {
-		return this.path;
-	}
-
-	public abstract Read(): GrayMatterFile<string>;
-
-	public Write(content: string): void {
-		this.builder.Add(this.TargetPath, content);
-	}
-
-	public Remove(): void {
-		this.builder.Remove(this.TargetPath);
-	}
+	public abstract get Attributes(): SourceAttributes;
+	public abstract get Content(): string;
 }

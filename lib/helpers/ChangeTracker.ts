@@ -1,91 +1,51 @@
 import { debug, Debugger } from 'debug';
-import { Changeable } from '../domain/Changeable';
-import { SourceValue } from '../domain/core/SourceValue';
+import { Subscription } from 'rxjs';
 import { Packable } from '../domain/Packable';
-import { FileEvent } from '../domain/Trackable';
-import { WriteableBuilder } from '../domain/Writeable';
-import { FileFactory } from '../factories/FileFactory';
-
-interface Changeables {
-	[key: string]: {
-		file: Changeable;
-		unsubscribe: () => void;
-	};
-}
+import { Readable } from '../domain/Readable';
+import { Targetable } from '../domain/Targetable';
+import { Writeable } from '../domain/Writeable';
+import { SourceToTargetMapper } from './SourceToTargetMapper';
 
 const logger = debug('grafter:helpers:ChangeTracker');
+const tracer = debug('grafter:trace:helpers:ChangeTracker');
 export class ChangeTracker {
 	private readonly logger: Debugger;
-	private readonly files: Changeables;
+	private readonly tracer: Debugger;
+	private readonly writeables: Writeable[];
 
-	public constructor(
+	constructor(
 		private readonly pack: Packable,
-		public readonly builder: WriteableBuilder
+		private readonly target: Targetable
 	) {
-		this.logger = logger.extend(this.pack.Name);
-		this.files = {};
+		this.logger = logger.extend(pack.Name);
+		this.tracer = tracer.extend(pack.Name);
+		this.writeables = [];
 	}
 
-	public HandleAdded(event: FileEvent): void {
-		this.ThrowIfFound(event.filepath);
-		this.logger('file added received (%o)', event);
-		this.HandleChanged(event);
+	public AddWriter(writeable: Writeable): void {
+		this.writeables.push(writeable);
 	}
 
-	public HandleChanged(event: FileEvent): void {
-		this.EnsureExists(event.filepath);
-		this.logger('file changed received (%o)', event);
+	public async ListenAsync(readable: Readable): Promise<void> {
+		const writers = this.writeables.map(writeable => writeable.Create());
 
-		if ('source' in event) {
-			this.files[event.filepath].file.AddSource(event.source, new SourceValue(this.pack, event.source, this.builder, event.value || ''));
-		}
+		const subs: Subscription[] = [];
+		const mapper = new SourceToTargetMapper(this.logger, this.tracer, this.pack, this.target);
+		readable.Subscribe(mapper).forEach(p => subs.push(p));
+		writers.forEach(w => mapper.Subscribe(w).forEach(p => subs.push(p)));
 
-		this.files[event.filepath].file.Update();
-	}
+		this.logger('start listening to reader');
+		await readable.ProcessFilesAsync();
+		await mapper.FinalizeAsync();
 
-	public HandleRemoved(event: FileEvent): void {
-		this.ThrowIfNotFound(event.filepath);
-		this.logger('file removed received (%o)', event);
+		this.tracer('completing readable & mapper')
+		readable.Complete();
+		mapper.Complete();
 
-		if ('source' in event) {
-			this.files[event.filepath].file.RemoveSource(event.source);
-			this.files[event.filepath].file.Update();
-		}
+		this.tracer('unsubscribing');
+		subs.forEach(p => p.unsubscribe());
 
-		if (!this.files[event.filepath].file.HasSources || !('source' in event)) {
-			this.files[event.filepath].file.Remove();
-			this.files[event.filepath].unsubscribe();
-			delete this.files[event.filepath];
-		}
-	}
-
-	private EnsureExists(filepath: string): void {
-		if (!this.files[filepath]) {
-			const file = FileFactory.Create(filepath, this.pack, this.builder);
-			const addedSubscription = file.Added$.subscribe(this.HandleAdded.bind(this));
-			const changedSubscription = file.Changed$.subscribe(this.HandleChanged.bind(this));
-			const removedSubscription = file.Removed$.subscribe(this.HandleRemoved.bind(this));
-
-			this.files[filepath] = {
-				file,
-				unsubscribe: () => {
-					addedSubscription.unsubscribe();
-					changedSubscription.unsubscribe();
-					removedSubscription.unsubscribe();
-				}
-			}
-		}
-	}
-
-	private ThrowIfFound(filepath: string): void {
-		if (!!this.files[filepath]) {
-			throw new Error(`file found '${filepath}'`);
-		}
-	}
-
-	private ThrowIfNotFound(filepath: string): void {
-		if (!this.files[filepath]) {
-			throw new Error(`file not found '${filepath}'`);
-		}
+		this.logger('finalizing writers');
+		await Promise.all(writers.map(p => p.FinalizeAsync()));
 	}
 }

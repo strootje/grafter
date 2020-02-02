@@ -9,21 +9,25 @@ import { Packable } from './domain/Packable';
 import { Targetable } from './domain/Targetable';
 import { PackFactory } from './factories/PackFactory';
 import { CacheHelper } from './helpers/CacheHelper';
+import { ChangeTracker } from './helpers/ChangeTracker';
 
 export interface GrafterOpts {
-	rootFolder: string;
+	source: string;
 	target: Targetable;
+	merge: boolean;
 }
 
 type HandlePackPredicate = (pack: Packable) => Promise<void>;
 
 const logger = debug('grafter:lib:Grafter');
 export class Grafter {
-	protected readonly rootFolder: string;
+	protected readonly merge: boolean;
+	protected readonly source: string;
 	protected readonly target: Targetable;
 
 	constructor(opts: GrafterOpts) {
-		this.rootFolder = opts.rootFolder;
+		this.merge = opts.merge;
+		this.source = opts.source;
 		this.target = opts.target;
 	}
 
@@ -31,11 +35,12 @@ export class Grafter {
 		logger('building packs');
 
 		return this.HandlePackAsync(pack => {
-			const reader = new ReadOnce(pack);
-			const writer = new WriteToFolder(this.target, pack);
-			reader.pipe(writer);
+			const tracker = new ChangeTracker(pack, this.target);
+			const writer = new WriteToFolder(pack, this.target);
+			tracker.AddWriter(writer);
 
-			return reader.ProcessFilesAsync();
+			const reader = new ReadOnce(pack);
+			return tracker.ListenAsync(reader);
 		});
 	}
 
@@ -43,11 +48,12 @@ export class Grafter {
 		logger('serving packs');
 
 		return this.HandlePackAsync(pack => {
-			const reader = new ReadContinues(pack);
-			const writer = new WriteToFolder(this.target, pack);
-			reader.pipe(writer);
+			const tracker = new ChangeTracker(pack, this.target);
+			const writer = new WriteToFolder(pack, this.target);
+			tracker.AddWriter(writer);
 
-			return reader.ProcessFilesAsync();
+			const reader = new ReadContinues(pack);
+			return tracker.ListenAsync(reader);
 		});
 	}
 
@@ -55,11 +61,12 @@ export class Grafter {
 		logger('packing packs');
 
 		return this.HandlePackAsync(pack => {
-			const reader = new ReadOnce(pack);
-			const writer = new WriteToArchive(this.target, pack);
-			reader.pipe(writer);
+			const tracker = new ChangeTracker(pack, this.target);
+			const writer = new WriteToArchive(pack, this.target);
+			tracker.AddWriter(writer);
 
-			return reader.ProcessFilesAsync();
+			const reader = new ReadOnce(pack);
+			return tracker.ListenAsync(reader);
 		});
 	}
 
@@ -70,17 +77,17 @@ export class Grafter {
 
 	private get Packs(): Packable[] {
 		return CacheHelper.Get(`packs`, () => {
-			const folder = resolve(this.rootFolder);
+			const folder = resolve(this.source);
 			logger('searching for packs in `%s`', folder);
 
 			const packFolders = FastGlob(['**/assets', '**/data'], {
 				cwd: folder,
 				onlyDirectories: true,
-				ignore: ['**/dist', '**/grafter', '**/node_modules']
+				ignore: ['**/dist', '**/grafter', '**/minecraft', '**/node_modules']
 			});
 
 			const packs = packFolders.map(packFolder => {
-				const packFolderPath = resolve(this.rootFolder, packFolder);
+				const packFolderPath = resolve(this.source, packFolder);
 
 				const pack = PackFactory.Create(packFolderPath);
 				logger('searching for packs in `%s` - found', packFolderPath);

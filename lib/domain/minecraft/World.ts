@@ -1,7 +1,6 @@
 import { Profile } from './Profile';
 
 export class World {
-
 	constructor(
 		private readonly name: string,
 		private readonly profile: Profile,

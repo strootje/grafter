@@ -7,12 +7,14 @@ import { MinecraftHelper } from './MinecraftHelper';
 
 export interface CommandArgs {
 	profile: string;
+	merge: boolean;
 	target: string;
 	source: string;
 }
 
 export interface CoercedCommandArgs {
 	profile: Profile;
+	merge: boolean;
 	target: Targetable;
 	source: string;
 }
@@ -54,6 +56,7 @@ export class ArgsHelper {
 
 			return predicate({
 				profile: target.Profile,
+				merge: args.merge,
 				target: target,
 				source: args.source
 			});

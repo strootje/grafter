@@ -1,23 +1,40 @@
+import { debug, Debugger } from 'debug';
 import { resolve } from 'path';
+import { FileAddedEvent } from './events/FileAddedEvent';
+import { FileChangedEvent } from './events/FileChangedEvent';
+import { FileRemovedEvent } from './events/FileRemovedEvent';
 import { Packable } from './Packable';
 import { Targetable } from './Targetable';
+import { Tracker } from './Tracker';
 
-export type WriteableBuilderPredicate = (builder: WriteableBuilder) => Promise<void>;
+export abstract class WriteableBuilder implements Tracker<FileAddedEvent, FileChangedEvent, FileRemovedEvent> {
+	private readonly jobs: Promise<void>[] = [];
 
-export interface WriteableCreator {
-	CreateAsync(predicate: WriteableBuilderPredicate): Promise<void>;
+	public async FinalizeAsync(): Promise<void> {
+		await Promise.all(this.jobs);
+	}
+
+	public abstract HandleAdded(args: FileAddedEvent): void;
+	public abstract HandleChanged(args: FileChangedEvent): void;
+	public abstract HandleRemoved(args: FileRemovedEvent): void;
+
+	protected AddJob(job: () => Promise<void>): void {
+		this.jobs.push(job());
+	}
 }
 
-export interface WriteableBuilder {
-	Add(path: string, content: string): void;
-	Remove(path: string): void;
-}
+const logger = debug('graft:domain:Writeable');
+const tracer = debug('graft:trace:domain:Writeable');
+export abstract class Writeable {
+	protected readonly logger: Debugger;
+	protected readonly tracer: Debugger;
 
-export abstract class Writeable implements WriteableCreator {
 	constructor(
-		protected readonly target: Targetable,
-		protected readonly pack: Packable
+		protected readonly pack: Packable,
+		protected readonly target: Targetable
 	) {
+		this.logger = logger.extend(target.Name);
+		this.tracer = tracer.extend(target.Name);
 	}
 
 	protected get Basepath(): string {
@@ -28,5 +45,5 @@ export abstract class Writeable implements WriteableCreator {
 		return resolve(this.Basepath, this.pack.Type);
 	}
 
-	public abstract CreateAsync(predicate: WriteableBuilderPredicate): Promise<void>;
+	public abstract Create(): WriteableBuilder;
 }
