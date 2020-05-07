@@ -6,6 +6,8 @@ import { SourceEmpty } from '../domain/core/SourceEmpty';
 import { SourceFile } from '../domain/core/SourceFile';
 import { InvalidFileTypeError } from '../domain/errors/InvalidFileTypeError';
 import { Function } from '../domain/pack/data/Function';
+import { LootTable } from '../domain/pack/data/LootTable';
+import { Predicate } from '../domain/pack/data/Predicate';
 import { Tag } from '../domain/pack/data/Tag';
 import { Packable } from '../domain/Packable';
 import { Sourceable } from '../domain/Sourceable';
@@ -19,6 +21,8 @@ export class FileFactory {
 
 		switch (filetype) {
 			case 'functions': return new Function(source, filenamespace, filetype, filename);
+			case 'loot_tables': return new LootTable(source, filenamespace, filetype, filename);
+			case 'predicates': return new Predicate(source, filenamespace, filetype, filename);
 			case 'tags': return new Tag(source, filenamespace, filetype, filename);
 			default: throw new InvalidFileTypeError(filetype);
 		}

@@ -4,7 +4,7 @@ import { MergeHelper } from '../helpers/MergeHelper';
 import { Sourceable, SourceAttributes } from './Sourceable';
 import { Trackable } from './Trackable';
 
-export type FileType = 'functions' | 'tags';
+export type FileType = 'functions' | 'loot_tables' | 'predicates' | 'tags';
 
 export interface ListOfSources {
 	[key: string]: Sourceable;
@@ -19,7 +19,7 @@ export abstract class Changeable extends Trackable {
 		private readonly source: Sourceable,
 		private readonly namespace: string,
 		private readonly type: FileType,
-		private readonly filename: string
+		protected filename: string
 	) {
 		super();
 		this.logger = logger.extend(filename);
