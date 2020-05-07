@@ -7,17 +7,20 @@
 		"clean": "rimraf ./dist",
 		"prebuild": "pnpm run clean",
 		"build": "tsc -p ./",
-		"test": "env DEBUG=grafter:*,-grafter:trace:* ./bin/index.ts"
+		"test": "env DEBUG=grafter:*,-grafter:trace:* ts-node ./src/index.ts"
 	},
 	"dependencies": {
 		"archiver": "^3.1.1",
+		"chalk": "^4.0.0",
 		"chokidar": "^3.3.1",
 		"debug": "^4.1.1",
 		"empty-dir": "^2.0.0",
 		"fast-glob": "^3.1.1",
 		"gray-matter": "^4.0.2",
+		"lodash": "^4.17.15",
 		"merge-anything": "^2.4.4",
 		"mkdirp": "^0.5.1",
+		"ora": "^4.0.4",
 		"rxjs": "^6.5.4",
 		"semver": "^7.1.1",
 		"yargs": "^15.1.0"
@@ -26,6 +29,7 @@
 		"@types/archiver": "^3.0.0",
 		"@types/debug": "^4.1.5",
 		"@types/empty-dir": "^2.0.0",
+		"@types/lodash": "^4.14.150",
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^13.5.0",
 		"@types/semver": "^6.2.0",
