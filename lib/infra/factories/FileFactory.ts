@@ -10,6 +10,10 @@ import { Default } from '../../types/Generic';
 import { JarHelper } from '../helpers/JarHelper';
 import { CommandFactory } from './CommandFactory';
 
+interface Mutator<T extends {}> {
+	(input: T): T;
+}
+
 export class FileFactory {
 	public static async CreateFromFileAsync(jarHelper: JarHelper, folder: string, path: string): Promise<File[]> {
 		const fullpath = resolve(folder, path);
@@ -21,32 +25,29 @@ export class FileFactory {
 		const filename = filenameWithExt.substring(0, filenameWithExt.lastIndexOf('.'));
 
 		if (filenameWithExt.match(/^.*\.[jt]s$/)) {
-			register({ transpileOnly: true });
-			delete require.cache[fullpath];
-			const mod = require(fullpath) as Default<{} | ((input: {}) => {})>;
-
-			if (typeof mod.default === 'function') {
-				const found = await jarHelper.FindFilesAsync(type, filename);
-				const keys = Object.keys(found);
-
-				if (keys.length > 0) {
-					const files: File[] = [];
-					for (const item of keys) {
-						const created = this.Create(namespace, type, filename.replace(basename(filename), basename(item)), JSON.stringify(mod.default(found[item])), {});
-						created.forEach(p => files.push(p));
-					}
-
-					return files;
-				} else {
-					return this.Create(namespace, type, filename, JSON.stringify(mod.default({})), {});
-				}
-			} else {
-				return this.Create(namespace, type, filename, JSON.stringify(mod.default), {});
-			}
+			const mutator = this.GetMutator(fullpath);
+			return await this.CreateFromScriptAsync(namespace, type, filename, jarHelper, mutator);
 		} else {
 			const matter = GrayMatter(fullpath);
 			return this.CreateFromMatter(namespace, type, filename, matter);
 		}
+	}
+
+	public static async CreateFromScriptAsync(namespace: string, type: FileType, filename: string, jarHelper: JarHelper, mutator: Mutator<{}>): Promise<File[]> {
+		const matches = await jarHelper.FindFilesAsync(type, filename);
+		const keys = Object.keys(matches);
+
+		if (keys.length <= 0) {
+			return this.Create(namespace, type, filename, JSON.stringify(mutator({})), {});
+		}
+
+		const files: File[] = [];
+		for (const key of keys) {
+			const created = this.Create(namespace, type, filename.replace(basename(filename), basename(key)), JSON.stringify(mutator(matches[key])), {});
+			created.forEach(p => files.push(p));
+		}
+
+		return files;
 	}
 
 	public static CreateFromMatter(namespace: string, type: FileType, filename: string, matter: GrayMatterFile<string>): File[] {
@@ -84,5 +85,14 @@ export class FileFactory {
 
 	private static CreateJson<T>(namespace: string, filetype: FileType, filename: string, content: T): File[] {
 		return [new JsonFile<T>(namespace, 'tags', `${filetype}/${filename}`, content)];
+	}
+
+	private static GetMutator(path: string): Mutator<{}> {
+		register({ transpileOnly: true });
+		delete require.cache[path];
+
+		const mutator = (require(path) as Default<{} | Mutator<{}>>).default;
+		return (typeof mutator === 'function') ? (mutator as Mutator<{}>) : () => mutator;
+		// return (typeof mutator === 'function') ? mutator : (input: {}) => ({ ...input,  ...mutator });
 	}
 }
