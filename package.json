@@ -3,11 +3,13 @@
 	"name": "grafter",
 	"version": "0.1.0",
 	"bin": "./dist/bin/index.js",
+	"main": "./dist/lib/index.js",
+	"typings": "./dist/lib/index.d.js",
 	"scripts": {
 		"clean": "rimraf ./dist",
 		"prebuild": "pnpm run clean",
 		"build": "tsc -p ./",
-		"test": "env DEBUG=grafter:*,-grafter:trace:* ts-node ./src/index.ts"
+		"test": "env DEBUG=grafter:*,-grafter:trace:* ts-node ./bin/index.ts"
 	},
 	"dependencies": {
 		"archiver": "^3.1.1",
@@ -23,6 +25,7 @@
 		"ora": "^4.0.4",
 		"rxjs": "^6.5.4",
 		"semver": "^7.1.1",
+		"unzipper": "^0.10.11",
 		"yargs": "^15.1.0"
 	},
 	"devDependencies": {
@@ -33,6 +36,7 @@
 		"@types/mkdirp": "^0.5.2",
 		"@types/node": "^13.5.0",
 		"@types/semver": "^6.2.0",
+		"@types/unzipper": "^0.10.3",
 		"@types/yargs": "^15.0.1",
 		"rimraf": "^3.0.0",
 		"ts-node": "^8.6.2",
