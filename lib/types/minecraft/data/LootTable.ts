@@ -1,4 +1,4 @@
-import { BlockFunction, Function } from '../../../lib';
+import { BlockFunction, Function } from '../../..';
 import { Condition } from './values/Conditions';
 import { MinMax } from './values/Generic';
 

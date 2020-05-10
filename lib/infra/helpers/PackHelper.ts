@@ -1,5 +1,6 @@
 import { sync as FastGlob } from 'fast-glob';
 import { resolve } from 'path';
+import { Profile } from '../../domain/minecraft/Profile';
 import { Pack } from '../../domain/Pack';
 import { PackFactory } from '../factories/PackFactory';
 import { CreateLogger } from '../wrappers/DebugChalkWrapper';
@@ -11,12 +12,12 @@ export interface HandlePackCallback {
 }
 
 export class PackHelper {
-	public static async HandlePacksAsync(source: string, callback: HandlePackCallback): Promise<void> {
-		const promises = this.GetPacks(source).map(callback);
+	public static async HandlePacksAsync(profile: Profile, source: string, callback: HandlePackCallback): Promise<void> {
+		const promises = this.GetPacks(profile, source).map(callback);
 		await Promise.all(promises);
 	}
 
-	private static GetPacks(source: string): Pack[] {
+	private static GetPacks(profile: Profile, source: string): Pack[] {
 		return CacheHelper.Get(`packs`, () => {
 			const folder = resolve(source);
 			logger('searching for packs in `%s`', folder);
@@ -30,7 +31,7 @@ export class PackHelper {
 			const packs = packFolders.map(packFolder => {
 				const packFolderPath = resolve(source, packFolder);
 
-				const pack = PackFactory.Create(packFolderPath);
+				const pack = PackFactory.Create(profile, packFolderPath);
 				logger('searching for packs in `%s` - found', packFolderPath);
 				return pack;
 			});

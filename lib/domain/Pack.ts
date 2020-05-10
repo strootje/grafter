@@ -1,8 +1,10 @@
 import { FSWatcher, watch as Chokidar, WatchOptions } from 'chokidar';
 import { EventEmitter } from 'events';
 import { FileFactory } from '../infra/factories/FileFactory';
+import { JarHelper } from '../infra/helpers/JarHelper';
 import { File } from './File';
 import { MergedFile } from './files';
+import { Profile } from './minecraft/Profile';
 import { Manifest } from './pack/Manifest';
 
 export interface ListOfFiles<T> {
@@ -25,6 +27,7 @@ export abstract class Pack extends EventEmitter {
 	constructor(
 		private readonly type: PackType,
 		private readonly name: string,
+		private readonly profile: Profile,
 		private readonly folder: string,
 		opts: WatchOptions
 	) {
@@ -93,7 +96,8 @@ export abstract class Pack extends EventEmitter {
 	}
 
 	private async HandleFileAddedAsync(filename: string): Promise<void> {
-		const files = await FileFactory.CreateFromFileAsync(this.Folder, filename);
+		const jarHelper = await JarHelper.CreateAsync(this.type, this.profile);
+		const files = await FileFactory.CreateFromFileAsync(jarHelper, this.Folder, filename);
 
 		for (const file of files) {
 			this.OutputFileAdd(filename, file);

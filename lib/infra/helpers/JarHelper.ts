@@ -1,21 +1,27 @@
-import { join } from 'path';
+import { basename, dirname, join } from 'path';
 import { File, Open as Unzipper } from 'unzipper';
 import { FileType } from '../../domain/File';
 import { Profile } from '../../domain/minecraft/Profile';
 import { PackType } from '../../domain/Pack';
 
-export class JarHelpers {
-	public static OpenAsync(profile: Profile): Promise<File[]> {
-		return Unzipper.file(profile.JarPath).then(p => p.files);
+export class JarHelper {
+	private constructor(
+		private readonly packtype: PackType,
+		private readonly files: File[]
+	) {
 	}
 
-	public static async GetFilesAsync<T extends {}>(profile: Profile, packType: PackType, fileType: FileType, filename: string): Promise<T[]> {
-		const path = join(packType, 'minecraft', fileType, filename);
-		const files = await this.OpenAsync(profile);
+	public static async CreateAsync(packtype: PackType, profile: Profile): Promise<JarHelper> {
+		const directory = await Unzipper.file(profile.JarPath);
+		return new JarHelper(packtype, directory.files);
+	}
 
-		return files.filter(p => p.path === path)
-			.map(async p => (await p.buffer()).toString())
-			.map(async p => JSON.parse(await p) as T)
-			.reduce(async (prev, cur) => [...(await prev), (await cur)], Promise.resolve([]));
+	public FindFilesAsync<T extends {}>(filetype: FileType, filename: string): Promise<{ [key: string]: T }> {
+		const path = join(this.packtype, 'minecraft', filetype, filename);
+		const folder = dirname(path);
+
+		return this.files.filter(p => p.path.startsWith(folder) && basename(p.path).indexOf(basename(filename)) >= 0)
+			.map(async p => ({ [p.path]: JSON.parse((await p.buffer()).toString()) as T }))
+			.reduce(async (prev, cur) => ({ ...(await prev), ...(await cur) }), Promise.resolve({}));
 	}
 }

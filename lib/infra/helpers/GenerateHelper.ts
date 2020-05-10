@@ -3,9 +3,9 @@ import * as Mkdirp from 'mkdirp';
 import { basename, dirname, resolve } from 'path';
 import { CentralDirectory, Open as Unzipper } from 'unzipper';
 import { promisify } from 'util';
-import { Dict, Set } from '../../../types/Generic';
 import { NotFoundError } from '../../domain/errors';
 import { Target } from '../../domain/Target';
+import { Dict, Set } from '../../types/Generic';
 const WriteFileAsync = promisify(writeFile);
 const MkdirpAsync = promisify(Mkdirp);
 
@@ -198,8 +198,7 @@ class TextGenerator {
 			this.GenerateHeader(target),
 			`import { ${singular} } from 'grafter';`,
 			...deps.map(dep => `import { ${this.ToCamelCase(dep)}Id } from '..';`),
-			`export type Typed${singular} = ${singular}<${deps.map(p => `${this.ToCamelCase(p)}Id`).join(',')}>;`,
-			// `export const BuildLootTable = CreateBuilder<Typed${singular}>();`
+			`export type Typed${singular} = ${singular}<${deps.map(p => `${this.ToCamelCase(p)}Id`).join(',')}>;`
 		].join('\n');
 	}
 

@@ -45,7 +45,7 @@ export function HandlePackCommandAsync(namespace: string, output: WriterType, ca
 	return HandleCommandAsync(namespace, ({ args, logger }) => CreateEventSpinnerAsync(async writeLine => {
 		const target = TargetFactory.Create(args.target, args.profile);
 
-		await PackHelper.HandlePacksAsync(args.source, async pack => {
+		await PackHelper.HandlePacksAsync(target.Profile, args.source, async pack => {
 			await WriterFactory.CreateAsync(output, target, pack, async writer => {
 				pack.on('update', ({ file }) => {
 					writeLine('updating %s:%s/%s', file.Namespace, file.Type, file.Name);

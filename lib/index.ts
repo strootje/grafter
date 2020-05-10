@@ -1,1 +1,2 @@
-export * from '../types/minecraft';
+export * from './types/minecraft';
+

@@ -30,5 +30,6 @@ export const GenerateCmd: CommandModule<{}, GenerateArgs> = {
 		await generator.GenerateNameFilesAsync((name, count) => writeLine('found %s items for %s', count, name));
 		await generator.GenerateBuilderFilesAsync(name => writeLine('builder %s generated', name));
 		await generator.GenerateIndexFileAsync(() => writeLine('generating index file'));
+		writeLine('finished, see %s', args.target);
 	}))
 };

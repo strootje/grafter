@@ -1,16 +1,17 @@
 import { GrayMatterFile, read as GrayMatter } from 'gray-matter';
-import { resolve, sep } from 'path';
+import { basename, resolve, sep } from 'path';
 import { register } from 'ts-node';
-import { Default } from '../../../types/Generic';
 import { Command } from '../../domain/Command';
 import { File, FileType } from '../../domain/File';
 import { FunctionFile, FunctionMatter } from '../../domain/files';
 import { JsonFile } from '../../domain/files/JsonFile';
 import { TagJson } from '../../domain/files/TagFile';
+import { Default } from '../../types/Generic';
+import { JarHelper } from '../helpers/JarHelper';
 import { CommandFactory } from './CommandFactory';
 
 export class FileFactory {
-	public static async CreateFromFileAsync(folder: string, path: string): Promise<File[]> {
+	public static async CreateFromFileAsync(jarHelper: JarHelper, folder: string, path: string): Promise<File[]> {
 		const fullpath = resolve(folder, path);
 		const parts = path.split(sep).join('/').split('/');
 
@@ -21,14 +22,27 @@ export class FileFactory {
 
 		if (filenameWithExt.match(/^.*\.[jt]s$/)) {
 			register({ transpileOnly: true });
-			const mod = require(fullpath) as Default<any>;
+			delete require.cache[fullpath];
+			const mod = require(fullpath) as Default<{} | ((input: {}) => {})>;
 
-			let data = mod.default;
-			if (typeof data === 'function') {
-				data = mod.default();
+			if (typeof mod.default === 'function') {
+				const found = await jarHelper.FindFilesAsync(type, filename);
+				const keys = Object.keys(found);
+
+				if (keys.length > 0) {
+					const files: File[] = [];
+					for (const item of keys) {
+						const created = this.Create(namespace, type, filename.replace(basename(filename), basename(item)), JSON.stringify(mod.default(found[item])), {});
+						created.forEach(p => files.push(p));
+					}
+
+					return files;
+				} else {
+					return this.Create(namespace, type, filename, JSON.stringify(mod.default({})), {});
+				}
+			} else {
+				return this.Create(namespace, type, filename, JSON.stringify(mod.default), {});
 			}
-
-			return this.Create(namespace, type, filename, JSON.stringify(data), {});
 		} else {
 			const matter = GrayMatter(fullpath);
 			return this.CreateFromMatter(namespace, type, filename, matter);
