@@ -31,8 +31,8 @@ export type LootTable<
 	StructureIdType extends string,
 	TagIdType extends string
 	>
-	= BlockLootTable<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, BlockFunction<EffectIdType, EnchantmentIdType, EntityIdType, MapIconIdType, StructureIdType>, ItemIdType, LootTableIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>
-	| OtherLootTable<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, Function<EffectIdType, EnchantmentIdType, EntityIdType, MapIconIdType, StructureIdType>, ItemIdType, LootTableIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>;
+	= BlockLootTable<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, LootTableIdType, MapIconIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>
+	| OtherLootTable<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, LootTableIdType, MapIconIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>;
 
 export interface BlockLootTable<
 	AdvancementIdType extends string,
@@ -43,9 +43,9 @@ export interface BlockLootTable<
 	EnchantmentIdType extends string,
 	EntityIdType extends string,
 	FluidIdType extends string,
-	FunctionType extends {},
 	ItemIdType extends string,
 	LootTableIdType extends string,
+	MapIconIdType extends string,
 	PotionIdType extends string,
 	RecipeIdType extends string,
 	StatIdType extends string,
@@ -54,7 +54,7 @@ export interface BlockLootTable<
 	TagIdType extends string
 	> {
 	type: 'minecraft:block';
-	pools: LootTablePool<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, FunctionType, ItemIdType, LootTableIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>[];
+	pools: LootTablePool<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, BlockFunction<EffectIdType, EnchantmentIdType, EntityIdType, MapIconIdType, StructureIdType>, ItemIdType, LootTableIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>[];
 }
 
 export interface OtherLootTable<
@@ -66,9 +66,9 @@ export interface OtherLootTable<
 	EnchantmentIdType extends string,
 	EntityIdType extends string,
 	FluidIdType extends string,
-	FunctionType extends {},
 	ItemIdType extends string,
 	LootTableIdType extends string,
+	MapIconIdType extends string,
 	PotionIdType extends string,
 	RecipeIdType extends string,
 	StatIdType extends string,
@@ -77,7 +77,7 @@ export interface OtherLootTable<
 	TagIdType extends string
 	> {
 	type: LootTableTypes;
-	pools: LootTablePool<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, FunctionType, ItemIdType, LootTableIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>[];
+	pools: LootTablePool<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, Function<EffectIdType, EnchantmentIdType, EntityIdType, MapIconIdType, StructureIdType>, ItemIdType, LootTableIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType, TagIdType>[];
 }
 
 export interface LootTablePool<

@@ -197,7 +197,7 @@ class TextGenerator {
 		return [
 			this.GenerateHeader(target),
 			`import { ${singular} } from 'grafter';`,
-			...deps.map(dep => `import { ${this.ToCamelCase(dep)}Id } from '..';`),
+			`import { ${deps.map(p => `${this.ToCamelCase(p)}Id`).join(',')} } from '..';`,
 			`export type Typed${singular} = ${singular}<${deps.map(p => `${this.ToCamelCase(p)}Id`).join(',')}>;`
 		].join('\n');
 	}
