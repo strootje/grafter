@@ -58,6 +58,7 @@ export class FileFactory {
 		switch (type) {
 			case 'functions': return this.CreateFunction(namespace, type, filename, CommandFactory.ParseAll(content.split('\n')), data);
 			case 'tags': return this.CreateTag(namespace, type, filename, JSON.parse(content) as TagJson);
+			case 'macros': return this.CreateMacro(namespace, type, filename, content, data);
 			default: return [new JsonFile<{}>(namespace, type, filename, JSON.parse(content))];
 		}
 	}
@@ -81,6 +82,18 @@ export class FileFactory {
 
 	public static CreateTag(namespace: string, filetype: FileType, filename: string, content: TagJson): File[] {
 		return this.CreateJson(namespace, filetype, filename, content);
+	}
+
+	public static CreateMacro(namespace: string, filetype: FileType, filename: string, content: string, data: any): File[] {
+		const files: File[] = [];
+
+		if (!!data.item) {
+			this.CreateFunction(namespace, 'functions', filename, [
+				CommandFactory.CreateGive('@p', data.item as string, {}).
+			], {}).forEach(p => files.push(p));
+		}
+
+		return files;
 	}
 
 	private static CreateJson<T>(namespace: string, filetype: FileType, filename: string, content: T): File[] {

@@ -138,13 +138,34 @@ export class GenerateHelper {
 	}
 
 	public async GenerateBuilderFilesAsync(callback?: GenerateBuilderFilesCallback): Promise<void> {
-		const types: Partial<Set<TypeName, TypeName[]>> = {
-			loot_table: ['advancement', 'biome', 'block', 'dimension', 'effect', 'enchantment', 'entity', 'fluid', 'item', 'loot_table', 'map_icon', 'potion', 'recipe', 'stat', 'stat_type', 'structure', 'tag']
+		const forLootTable: TypeName[] = ['advancement', 'biome', 'block', 'dimension', 'effect', 'enchantment', 'entity', 'fluid', 'item', 'loot_table', 'map_icon', 'potion', 'recipe', 'stat', 'stat_type', 'structure', 'tag'];
+		const forEntryBase: TypeName[] = ['advancement', 'biome', 'block', 'dimension', 'effect', 'enchantment', 'entity', 'fluid', 'item', 'potion', 'recipe', 'stat', 'stat_type', 'structure'];
+		const types: Partial<Set<TypeName, Set<string, TypeName[]>>> = {
+			loot_table: {
+				'LootTable': forLootTable,
+				'LootTablePoolTagEntry': [...forEntryBase, 'tag'],
+				'LootTablePoolDynamicEntry': forEntryBase,
+				'LootTablePoolEmptyEntry': forEntryBase,
+				...['Block', 'Other'].map(p => ({
+					[`${p}LootTable`]: forLootTable,
+					[`${p}LootTablePool`]: forLootTable,
+					[`${p}LootTablePoolEntry`]: forLootTable,
+					[`${p}LootTablePoolItemEntry`]: [...forEntryBase, 'map_icon'],
+					[`${p}LootTablePoolGroupEntry`]: forLootTable,
+					[`${p}LootTablePoolAlternativesEntry`]: forLootTable,
+					[`${p}LootTablePoolSequenceEntry`]: forLootTable
+				})).reduce((prev, cur) => ({ ...prev, ...cur }), {})
+			},
+			recipe: {
+				'Recipe': ['item'],
+				'RecipeIngredient': ['item'],
+				'RecipeResult': ['item']
+			}
 		};
 
 		await Promise.all(Object.keys(types).map(async (name: TypeName) => {
 			const deps = types[name]!;
-			const filedata = TextGenerator.GenerateBuilderFile(this.target, name, deps);
+			const filedata = TextGenerator.GenerateBuilderFile(this.target, deps);
 			this.types[name].builder = true;
 
 			await this.WriteFileAsync(`data/${TextGenerator.ToCamelCase(name)}.ts`, filedata);
@@ -191,14 +212,17 @@ class TextGenerator {
 		].join('\n');
 	}
 
-	public static GenerateBuilderFile(target: Target, name: TypeName, deps: TypeName[]): string {
-		const [singular] = this.GetNames(name);
+	public static GenerateBuilderFile(target: Target, deps: Set<string, TypeName[]>): string {
+		const types = Object.keys(deps);
+		const getDeps = (type: string) => deps[type].map(d => ({ [d]: true })).reduce((prev, cur) => ({ ...prev, ...cur }), {});
+		const getUniqueDeps = (type: string) => Object.keys(getDeps(type)).sort();
+		const uniqueDeps = Object.keys(types.map(p => getDeps(p)).reduce((prev, cur) => ({ ...prev, ...cur }), {})).sort();
 
 		return [
 			this.GenerateHeader(target),
-			`import { ${singular} } from 'grafter';`,
-			`import { ${deps.map(p => `${this.ToCamelCase(p)}Id`).join(',')} } from '..';`,
-			`export type Typed${singular} = ${singular}<${deps.map(p => `${this.ToCamelCase(p)}Id`).join(',')}>;`
+			`import { ${uniqueDeps.map(p => `${this.ToCamelCase(p)}Id`).join(',')} } from '..';`,
+			`import { ${types.join(',')} } from 'grafter';`,
+			...types.map(p => `export type Typed${p} = ${p}<${getUniqueDeps(p).map(p => `${this.ToCamelCase(p)}Id`).join(',')}>;`)
 		].join('\n');
 	}
 

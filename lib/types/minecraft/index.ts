@@ -1,4 +1,5 @@
 export * from './data/LootTable';
+export * from './data/Recipe';
 export * from './data/values/Conditions';
 export * from './data/values/Functions';
 export * from './data/values/Predicates';

@@ -97,10 +97,14 @@ export abstract class Pack extends EventEmitter {
 
 	private async HandleFileAddedAsync(filename: string): Promise<void> {
 		const jarHelper = await JarHelper.CreateAsync(this.type, this.profile);
-		const files = await FileFactory.CreateFromFileAsync(jarHelper, this.Folder, filename);
+		try {
+			const files = await FileFactory.CreateFromFileAsync(jarHelper, this.Folder, filename);
 
-		for (const file of files) {
-			this.OutputFileAdd(filename, file);
+			for (const file of files) {
+				this.OutputFileAdd(filename, file);
+			}
+		} catch (err) {
+			this.emit('error', new Error(`failed to parse ${filename}\n${err.message}`));
 		}
 	}
 

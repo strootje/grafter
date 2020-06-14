@@ -1,0 +1,17 @@
+export type AdvancementIdTyping = string | 1;
+export type BiomeIdTyping = string | 2;
+export type BlockIdTyping = string | 3;
+export type DimensionIdTyping = string | 4;
+export type EffectIdTyping = string | 5;
+export type EnchantmentIdTyping = string | 6;
+export type EntityIdTyping = string | 7;
+export type FluidIdTyping = string | 8;
+export type ItemIdTyping = string | 9;
+export type LootTableIdTyping = string | 10;
+export type MapIconIdTyping = string | 11;
+export type PotionIdTyping = string | 12;
+export type RecipeIdTyping = string | 13;
+export type StatIdTyping = string | 14;
+export type StatTypeIdTyping = string | 15;
+export type StructureIdTyping = string | 16;
+export type TagIdTyping = string | 17;

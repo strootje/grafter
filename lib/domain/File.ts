@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-export type FileType = 'functions' | 'tags';
+export type FileType = 'functions' | 'tags' | 'macros';
 
 export abstract class File {
 	constructor(

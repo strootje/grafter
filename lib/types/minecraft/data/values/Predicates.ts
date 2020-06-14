@@ -1,12 +1,13 @@
 import { Dict, Set } from '../../../Generic';
+import { AdvancementIdTyping, BiomeIdTyping, BlockIdTyping, DimensionIdTyping, EffectIdTyping, EnchantmentIdTyping, EntityIdTyping, FluidIdTyping, ItemIdTyping, PotionIdTyping, RecipeIdTyping, StatIdTyping, StatTypeIdTyping, StructureIdTyping } from '../../Names';
 import { MinMax, MinMaxPure, NbtString } from './Generic';
 
 export interface LocationPredicate<
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	FluidIdType extends string,
-	StructureIdType extends string
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	FluidIdType extends FluidIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	biome?: BiomeIdType;
 	block?: {
@@ -27,9 +28,9 @@ export interface LocationPredicate<
 }
 
 export interface ItemPredicate<
-	EnchantmentIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string
+	EnchantmentIdType extends EnchantmentIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping
 	> {
 	count?: MinMax;
 	durability?: MinMax;
@@ -48,20 +49,20 @@ export interface ItemPredicate<
 }
 
 export interface EntityPredicate<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	distance?: Partial<Set<'absolute' | 'horizontal' | 'x' | 'y' | 'z', MinMaxPure>>;
 	effects?: Partial<Set<EffectIdType, Partial<Set<'amplifier' | 'duration', MinMax>>>>;
@@ -85,20 +86,20 @@ export interface EntityPredicate<
 }
 
 export interface DamagePredicate<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	bypasses_armor?: boolean;
 	bypasses_invulnerability?: boolean;

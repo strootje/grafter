@@ -1,31 +1,32 @@
 import { Dict } from '../../../Generic';
-import { MinMax } from './Generic';
+import { AdvancementIdTyping, BiomeIdTyping, BlockIdTyping, DimensionIdTyping, EffectIdTyping, EnchantmentIdTyping, EntityIdTyping, FluidIdTyping, ItemIdTyping, PotionIdTyping, RecipeIdTyping, StatIdTyping, StatTypeIdTyping, StructureIdTyping } from '../../Names';
+import { Entities, MinMax } from './Generic';
 import { DamagePredicate, EntityPredicate, ItemPredicate, LocationPredicate } from './Predicates';
 
 export type Condition<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	>
 	= AlternativeCondition<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>
 	| BlockStatePropertyCondition<BlockIdType>
 	| DamageSourcePropertiesCondition<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>
 	| EntityPropertiesCondition<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>
-	| EntityScoresCondition<EntityIdType>
+	| EntityScoresCondition
 	| InvertedCondition<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>
 	| KilledByPlayerCondition
-	| LocationCheckCondition<BiomeIdType, BlockIdType, DimensionIdType, EntityIdType, StructureIdType>
+	| LocationCheckCondition<BiomeIdType, BlockIdType, DimensionIdType, FluidIdType, StructureIdType>
 	| MatchToolCondition<EnchantmentIdType, ItemIdType, PotionIdType>
 	| RandomChanceCondition
 	| RandomChanceWithLootingCondition
@@ -37,27 +38,27 @@ export type Condition<
 	| WeatherCheckCondition;
 
 export interface AlternativeCondition<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	condition: 'minecraft:alternative';
 	terms: Condition<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>[];
 }
 
 export interface BlockStatePropertyCondition<
-	BlockIdType extends string
+	BlockIdType extends BlockIdTyping
 	> {
 	condition: 'minecraft:block_state_property';
 	block: BlockIdType;
@@ -65,69 +66,67 @@ export interface BlockStatePropertyCondition<
 }
 
 export interface DamageSourcePropertiesCondition<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	condition: 'minecraft:damage_source_properties';
 	predicate?: DamagePredicate<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>;
 }
 
 export interface EntityPropertiesCondition<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	condition: 'minecraft:entity_properties';
-	entity: EntityIdType;
+	entity: Entities;
 	predicate?: EntityPredicate<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>;
 }
 
-export interface EntityScoresCondition<
-	EntityIdType extends string
-	> {
+export interface EntityScoresCondition {
 	condition: 'minecraft:entity_scores';
-	entity: EntityIdType;
+	entity: Entities;
 	scores: Dict<MinMax>;
 }
 
 export interface InvertedCondition<
-	AdvancementIdType extends string,
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	FluidIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string,
-	RecipeIdType extends string,
-	StatIdType extends string,
-	StatTypeIdType extends string,
-	StructureIdType extends string
+	AdvancementIdType extends AdvancementIdTyping,
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	FluidIdType extends FluidIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping,
+	RecipeIdType extends RecipeIdTyping,
+	StatIdType extends StatIdTyping,
+	StatTypeIdType extends StatTypeIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	condition: 'minecraft:inverted';
 	term: Condition<AdvancementIdType, BiomeIdType, BlockIdType, DimensionIdType, EffectIdType, EnchantmentIdType, EntityIdType, FluidIdType, ItemIdType, PotionIdType, RecipeIdType, StatIdType, StatTypeIdType, StructureIdType>;
@@ -139,23 +138,23 @@ export interface KilledByPlayerCondition {
 }
 
 export interface LocationCheckCondition<
-	BiomeIdType extends string,
-	BlockIdType extends string,
-	DimensionIdType extends string,
-	EntityIdType extends string,
-	StructureIdType extends string
+	BiomeIdType extends BiomeIdTyping,
+	BlockIdType extends BlockIdTyping,
+	DimensionIdType extends DimensionIdTyping,
+	FluidIdType extends FluidIdTyping,
+	StructureIdType extends StructureIdTyping
 	> {
 	condition: 'minecraft:location_check';
 	offsetX?: number;
 	offsetY?: number;
 	offsetZ?: number;
-	predicate?: LocationPredicate<BiomeIdType, BlockIdType, DimensionIdType, EntityIdType, StructureIdType>;
+	predicate?: LocationPredicate<BiomeIdType, BlockIdType, DimensionIdType, FluidIdType, StructureIdType>;
 }
 
 export interface MatchToolCondition<
-	EnchantmentIdType extends string,
-	ItemIdType extends string,
-	PotionIdType extends string
+	EnchantmentIdType extends EnchantmentIdTyping,
+	ItemIdType extends ItemIdTyping,
+	PotionIdType extends PotionIdTyping
 	> {
 	condition: 'minecraft:match_tool';
 	predicate?: ItemPredicate<EnchantmentIdType, ItemIdType, PotionIdType>;
@@ -182,7 +181,7 @@ export interface SurvivesExplosionCondition {
 }
 
 export interface TableBonusCondition<
-	EnchantmentIdType extends string
+	EnchantmentIdType extends EnchantmentIdTyping
 	> {
 	condition: 'minecraft:table_bonus';
 	enchantment: EnchantmentIdType;
@@ -196,7 +195,7 @@ export interface TimeCheckCondition {
 }
 
 export interface ToolEnchantmentCondition<
-	EnchantmentIdType extends string
+	EnchantmentIdType extends EnchantmentIdTyping
 	> {
 	condition: 'minecraft:tool_enchantment';
 	enchantments: {

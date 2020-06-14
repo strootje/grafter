@@ -1,12 +1,13 @@
+import { EffectIdTyping, EnchantmentIdTyping, EntityIdTyping, MapIconIdTyping, StructureIdTyping } from '../../Names';
 import { MinMax } from './Generic';
 import { TextComponent } from './TextComponent';
 
 export type Function<
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	MapIconIdType extends string,
-	StructureIdType extends string
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	MapIconIdType extends MapIconIdTyping,
+	StructureIdType extends StructureIdTyping
 	>
 	= ApplyBonusFunction<EnchantmentIdType>
 	| CopyNbtFunction<EntityIdType>
@@ -27,23 +28,23 @@ export type Function<
 	| SetStewEffectFunction<EffectIdType>;
 
 export type BlockFunction<
-	EffectIdType extends string,
-	EnchantmentIdType extends string,
-	EntityIdType extends string,
-	MapIconIdType extends string,
-	StructureIdType extends string
+	EffectIdType extends EffectIdTyping,
+	EnchantmentIdType extends EnchantmentIdTyping,
+	EntityIdType extends EntityIdTyping,
+	MapIconIdType extends MapIconIdTyping,
+	StructureIdType extends StructureIdTyping
 	>
 	= Function<EffectIdType, EnchantmentIdType, EntityIdType, MapIconIdType, StructureIdType>
 	| CopyBlockFunction
 	| ExplosionDecayFunction
 	| SetContentsFunction;
 
-export type ApplyBonusFunction<EnchantmentIdType extends string>
+export type ApplyBonusFunction<EnchantmentIdType extends EnchantmentIdTyping>
 	= BinomialApplyBonusFunction<EnchantmentIdType>
 	| UniformApplyBonusFunction<EnchantmentIdType>
 	| OreDropsApplyBonusFunction<EnchantmentIdType>;
 
-interface BinomialApplyBonusFunction<EnchantmentIdType extends string> {
+interface BinomialApplyBonusFunction<EnchantmentIdType extends EnchantmentIdTyping> {
 	function: 'minecraft:apply_bonus';
 	enchantment?: EnchantmentIdType;
 	formula: 'binomial_with_bonus_count';
@@ -53,7 +54,7 @@ interface BinomialApplyBonusFunction<EnchantmentIdType extends string> {
 	};
 }
 
-interface UniformApplyBonusFunction<EnchantmentIdType extends string> {
+interface UniformApplyBonusFunction<EnchantmentIdType extends EnchantmentIdTyping> {
 	function: 'minecraft:apply_bonus';
 	enchantment?: EnchantmentIdType;
 	formula: 'uniform_bonus_count';
@@ -62,7 +63,7 @@ interface UniformApplyBonusFunction<EnchantmentIdType extends string> {
 	};
 }
 
-interface OreDropsApplyBonusFunction<EnchantmentIdType extends string> {
+interface OreDropsApplyBonusFunction<EnchantmentIdType extends EnchantmentIdTyping> {
 	function: 'minecraft:apply_bonus';
 	enchantment?: EnchantmentIdType;
 	formula: 'ore_drops';
@@ -73,7 +74,7 @@ export interface CopyBlockFunction {
 	source: 'block_entity';
 }
 
-export interface CopyNbtFunction<EntityIdType extends string> {
+export interface CopyNbtFunction<EntityIdType extends EntityIdTyping> {
 	function: 'minecraft:copy_nbt';
 	source: 'block_entity' | EntityIdType;
 	ops?: {
@@ -88,7 +89,7 @@ export interface CopyStateFunction {
 	properties: string[];
 }
 
-export interface EnchantRandomlyFunction<EnchantmentIdType extends string> {
+export interface EnchantRandomlyFunction<EnchantmentIdType extends EnchantmentIdTyping> {
 	function: 'minecraft:enchant_randomly';
 	enchantments: EnchantmentIdType[];
 }
@@ -99,7 +100,7 @@ export interface EnchantWithLevelsFunction {
 	levels: MinMax;
 }
 
-export interface ExplorationMapFunction<MapIconIdType extends string, StructureIdType extends string> {
+export interface ExplorationMapFunction<MapIconIdType extends MapIconIdTyping, StructureIdType extends StructureIdTyping> {
 	function: 'minecraft:exploration_map';
 	destination: StructureIdType;
 	decoration?: MapIconIdType;
@@ -116,7 +117,7 @@ export interface FurnaceSmeltFunction {
 	function: 'minecraft:furnace_smelt';
 }
 
-export interface FillPlayerHeadFunction<EntityIdType extends string> {
+export interface FillPlayerHeadFunction<EntityIdType extends EntityIdTyping> {
 	function: 'minecraft:fill_player_head';
 	entity: EntityIdType;
 }
@@ -172,14 +173,14 @@ export interface SetDamageFunction {
 	damage: MinMax;
 }
 
-export interface SetLoreFunction<EntityIdType extends string> {
+export interface SetLoreFunction<EntityIdType extends EntityIdTyping> {
 	function: 'minecraft:set_lore';
 	lore: TextComponent,
 	entity: EntityIdType
 	replace?: boolean;
 }
 
-export interface SetNameFunction<EntityIdType extends string> {
+export interface SetNameFunction<EntityIdType extends EntityIdTyping> {
 	function: 'minecraft:set_name';
 	name: TextComponent;
 	entity: EntityIdType;
@@ -190,7 +191,7 @@ export interface SetNbtFunction {
 	tag: string;
 }
 
-export interface SetStewEffectFunction<EffectIdType extends string> {
+export interface SetStewEffectFunction<EffectIdType extends EffectIdTyping> {
 	function: 'minecraft:set_stew_effect';
 	effects: {
 		type: EffectIdType;

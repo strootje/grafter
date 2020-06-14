@@ -1,4 +1,4 @@
-export type CommandName = 'say' | 'scoreboard';
+export type CommandName = 'say' | 'scoreboard' | 'give';
 
 export abstract class Command {
 	public constructor(

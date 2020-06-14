@@ -1,3 +1,4 @@
+import { red } from 'chalk';
 import { Argv } from 'yargs';
 import { Pack } from '../../lib/domain/Pack';
 import { Target } from '../../lib/domain/Target';
@@ -46,6 +47,8 @@ export function HandlePackCommandAsync(namespace: string, output: WriterType, ca
 		const target = TargetFactory.Create(args.target, args.profile);
 
 		await PackHelper.HandlePacksAsync(target.Profile, args.source, async pack => {
+			pack.on('error', err => writeLine(`${red('Error')}: %s`, err.message));
+
 			await WriterFactory.CreateAsync(output, target, pack, async writer => {
 				pack.on('update', ({ file }) => {
 					writeLine('updating %s:%s/%s', file.Namespace, file.Type, file.Name);
